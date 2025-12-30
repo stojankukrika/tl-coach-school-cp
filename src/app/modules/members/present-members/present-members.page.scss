@@ -1,0 +1,100 @@
+$bg-background: #f8fafc;
+$card-bg: #ffffff;
+$text-main: #0f172a;
+$text-muted: #64748b;
+$border-color: #e2e8f0;
+$primary-navy: #5b7da1; 
+$success-green: #10b981;
+$error-red: #f43f5e;
+
+.bg_color { --background: #{$bg-background}; }
+.content-wrapper { padding: 16px; }
+
+// Reuse your info-card from previous pages
+.info-card {
+  background: $card-bg;
+  border-radius: 12px;
+  border: 1px solid $border-color;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+
+.section-divider {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin: 20px 0 12px 4px;
+  
+  &.success { color: $success-green; }
+  &.danger { color: $error-red; }
+}
+
+// Sliding List Customization
+.custom-sliding-list {
+  background: transparent;
+  padding: 0;
+}
+
+.attendance-slider {
+  margin-bottom: 8px;
+  border-radius: 14px;
+  overflow: hidden; // Keeps options inside the curve
+}
+
+.member-attendance-item {
+  --background: #{$card-bg};
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --inner-padding-end: 0;
+  border: 1px solid $border-color;
+  border-radius: 14px;
+  min-height: 70px;
+
+  .status-indicator {
+    width: 4px;
+    height: 30px;
+    border-radius: 2px;
+    margin-right: 12px;
+    &.present { background: $success-green; }
+    &.not_present { background: $error-red; }
+  }
+
+  .member-info {
+    h3 {
+      font-weight: 700;
+      color: $text-main;
+      margin: 0;
+      font-size: 0.95rem;
+    }
+    p {
+      margin: 2px 0 0;
+      font-size: 0.75rem;
+      color: $text-muted;
+      font-weight: 600;
+    }
+  }
+
+  .swipe-hint {
+    color: $border-color;
+    font-size: 1.2rem;
+  }
+}
+
+// Option Buttons (Sliding Trays)
+.opt-success {
+  --background: #{$success-green};
+  --color: white;
+  font-size: 1.5rem;
+}
+
+.opt-danger {
+  --background: #{$error-red};
+  --color: white;
+  font-size: 1.5rem;
+}
+
+// Confirmed states
+.confirmed { --background: #f0fdf4; border-color: rgba($success-green, 0.2); }
+.absent { --background: #fef2f2; border-color: rgba($error-red, 0.2); }

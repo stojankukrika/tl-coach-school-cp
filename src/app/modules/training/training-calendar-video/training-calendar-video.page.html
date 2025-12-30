@@ -1,0 +1,46 @@
+<ion-header class="safe-area-top">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'training_calendar_video' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="show()">
+    <ion-item lines="none">
+      <ion-label>
+        <h2 class="ion-text-wrap" style="font-weight: bold;">{{ trainingCalendar()?.title }}</h2>
+        <p>{{ trainingCalendar()?.from }} - {{ trainingCalendar()?.to }}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item lines="none">
+      <p class="ion-text-wrap">{{ trainingCalendar()?.content }}</p>
+    </ion-item>
+
+    <ion-item-divider></ion-item-divider>
+    <ion-item lines="none">
+      <ion-label position="stacked">{{ 'photo_video' | translate }}:</ion-label>
+      <input 
+        type="file" 
+        id="file" 
+        name="file" 
+        (change)="onSingleFileChange($event)" 
+        [ngModel]="file()"
+        accept="video/*,image/*"
+        style="padding: 10px 0;">
+    </ion-item>
+
+    <div class="ion-padding">
+      <ion-button 
+        expand="block" 
+        (click)="addMemberFile()" 
+        [disabled]="isUploading()">
+        <ion-spinner name="crescent" *ngIf="isUploading()" slot="start"></ion-spinner>
+        {{ 'add_photo_video' | translate }}
+      </ion-button>
+    </div>
+  </ion-card>
+</ion-content>

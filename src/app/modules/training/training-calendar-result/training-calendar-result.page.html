@@ -1,0 +1,79 @@
+<ion-header class="safe-area-top">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'training_calendar_results' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="show()">
+    <ion-item lines="none">
+      <ion-label>
+        <h2>{{ trainingCalendar()?.title }}</h2>
+        <p>{{ trainingCalendar()?.from }} - {{ trainingCalendar()?.to }}</p>
+        <p class="ion-text-wrap">{{ trainingCalendar()?.content }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-card>
+
+  <ion-card>
+    <ion-list>
+      <div *ngIf="measurement_type() === 'individual'">
+        <ion-item *ngIf="categories().length > 0">
+          <ion-label position="stacked">{{ 'category' | translate }}</ion-label>
+          <ion-select [ngModel]="selectedCategory()" (ionChange)="selectedCategory.set($event.detail.value)">
+            <ion-select-option *ngFor="let category of categories()" [value]="category">
+              {{ category.name }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item *ngIf="selectedCategory()">
+          <ion-label position="stacked">{{ 'value' | translate }}</ion-label>
+          <ion-select [ngModel]="selectedValue()" (ionChange)="selectedValue.set($event.detail.value); loadResults()">
+            <ion-select-option *ngFor="let val of selectedCategory().values_array" [value]="val">
+              {{ val }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
+
+      <ion-item *ngIf="showKey()">
+        <ion-label position="stacked">{{ ('enter' | translate) + ('measurement' | translate) }}</ion-label>
+        <ion-input type="text" [ngModel]="dataKey()" (ionInput)="dataKey.set($event.target.value)"></ion-input>
+      </ion-item>
+
+      <ion-grid>
+        <ion-row class="header-row">
+          <ion-col size="8"><strong>{{ 'members' | translate }}</strong></ion-col>
+          <ion-col size="4"><strong>{{ 'enter_value' | translate }}</strong></ion-col>
+        </ion-row>
+
+        <ion-row *ngFor="let item of members(); let i = index" class="member-row">
+          <ion-col size="8">
+            <ion-label>
+              <p class="membership">{{ item.membership_number }}</p>
+              <h3>{{ item.first_name }} {{ item.last_name }}</h3>
+              <p class="birth">{{ item.birth_date }}</p>
+            </ion-label>
+          </ion-col>
+          <ion-col size="4">
+            <ion-input 
+              [ngModel]="item.value" 
+              (ngModelChange)="updateMemberValue(i, $event)"
+              type="number" 
+              placeholder="0" 
+              [readonly]="item.read_only">
+            </ion-input>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-list>
+
+    <div class="ion-padding" *ngIf="show()">
+      <ion-button expand="block" (click)="saveMarkForMember()">{{ 'save' | translate }}</ion-button>
+    </div>
+  </ion-card>
+</ion-content>

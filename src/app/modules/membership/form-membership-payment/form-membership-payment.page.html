@@ -1,0 +1,104 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'create_membership_payment' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <ion-list lines="full" *ngIf="!isLoading()">
+    <ion-item class="animate__animated animate__fadeInUp">
+      <ion-label position="stacked">{{ 'amount' | translate }}*</ion-label>
+      <ion-input 
+        type="number" 
+        [value]="payment().amount"
+        (ionInput)="updatePaymentField('amount', $event.detail.value)">
+      </ion-input>
+    </ion-item>
+
+    <ion-item class="animate__animated animate__fadeInUp">
+      <ion-label>{{ 'date' | translate }}</ion-label>
+      <ion-datetime-button datetime="payment-date"></ion-datetime-button>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime 
+            id="payment-date" 
+            presentation="date"
+            [max]="maxDate()"
+            [value]="payment().date"
+            (ionChange)="updatePaymentField('date', $event.detail.value)">
+          </ion-datetime>
+        </ng-template>
+      </ion-modal>
+    </ion-item>
+
+    <ion-item class="animate__animated animate__fadeInUp">
+      <ion-label position="stacked">{{ 'payment_method' | translate }}*</ion-label>
+      <ion-select 
+        [value]="payment().payment_method"
+        (ionChange)="updatePaymentField('payment_method', $event.detail.value)">
+        <ion-select-option *ngFor="let item of paymentMethods()" [value]="item">
+          {{ 'payment_method_' + item | translate }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item-divider>
+      <ion-label>{{ 'membership_details' | translate }} ({{ 'optional' | translate }})</ion-label>
+    </ion-item-divider>
+
+    <ion-item class="animate__animated animate__fadeInUp">
+      <ion-label position="stacked">{{ 'year' | translate }}</ion-label>
+      <ion-select [value]="selectedYear()" (ionChange)="selectedYear.set($event.detail.value)">
+        <ion-select-option *ngFor="let item of years()" [value]="item.year">{{ item.year }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item class="animate__animated animate__fadeInUp">
+      <ion-label position="stacked">{{ 'select_month' | translate }}</ion-label>
+      <ion-select [value]="selectedMonth()" (ionChange)="selectedMonth.set($event.detail.value)">
+        <ion-select-option *ngFor="let item of months()" [value]="item">
+          {{ 'month_' + item | translate }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item class="animate__animated animate__fadeInUp">
+      <ion-label position="stacked">{{ 'payment_name' | translate }}</ion-label>
+      <ion-input 
+        type="text" 
+        [value]="payment().name"
+        (ionInput)="updatePaymentField('name', $event.detail.value)">
+      </ion-input>
+    </ion-item>
+
+    <ion-item class="animate__animated animate__fadeInUp">
+      <ion-label position="stacked">{{ 'payer_name' | translate }}</ion-label>
+      <ion-input 
+        type="text" 
+        [value]="payment().payer_name"
+        (ionInput)="updatePaymentField('payer_name', $event.detail.value)">
+      </ion-input>
+    </ion-item>
+  </ion-list>
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <ion-button 
+    expand="full" 
+    size="large" 
+    class="btn animate__animated animate__fadeInUp"
+    (click)="save()" 
+    [disabled]="!isValid() || isSubmitting()">
+    
+    <ion-spinner name="dots" *ngIf="isSubmitting()"></ion-spinner>
+    <span *ngIf="!isSubmitting()">{{ 'save' | translate }}</span>
+    
+  </ion-button>
+</ion-footer>

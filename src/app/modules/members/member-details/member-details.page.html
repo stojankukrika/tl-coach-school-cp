@@ -1,0 +1,114 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'member_details' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button id="member-options" class="btn-more">
+        <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color ion-padding">
+  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoading() && teamMember()">
+    <div class="content-wrapper animate__animated animate__fadeIn">
+      
+      <div class="profile-hero">
+        <div class="avatar-container" *ngIf="teamMember().avatar_url">
+          <img [src]="teamMember().avatar_url" />
+        </div>
+        <div class="avatar-placeholder" *ngIf="!teamMember().avatar_url">
+          <ion-icon name="person"></ion-icon>
+        </div>
+        <h1 class="member-name">{{ teamMember().first_name }} {{ teamMember().last_name }}</h1>
+        <span class="member-badge">{{ teamMember().membership_number || 'No ID' }}</span>
+      </div>
+
+      <div class="section-divider">{{ 'general_info' | translate }}</div>
+      <div class="info-card">
+        <div class="info-row">
+          <span class="label">{{ 'birth_date' | translate }}</span>
+          <span class="value">{{ teamMember().birth_date }}</span>
+        </div>
+        <div class="info-row" *ngIf="teamMember().urgent_phone">
+          <span class="label">{{ 'urgent_contact' | translate }}</span>
+          <span class="value">{{ teamMember().urgent_contact }} <small>({{ teamMember().urgent_kinship }})</small></span>
+        </div>
+        <div class="info-row" *ngIf="teamMember().urgent_phone">
+          <span class="label">{{ 'urgent_phone' | translate }}</span>
+          <span class="value link">
+            <a href="tel:{{teamMember().urgent_phone}}">{{ teamMember().urgent_phone }}</a>
+          </span>
+        </div>
+      </div>
+
+      <ng-container *ngIf="customFields().length > 0">
+        <div class="section-divider">{{ 'additional_details' | translate }}</div>
+        <div class="info-card">
+          <div class="info-row" *ngFor="let item of customFields()">
+            <span class="label">{{ item.label }}</span>
+            <span class="value">{{ item.custom_value }}</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="parents().length > 0">
+        <div class="section-divider">{{ 'parents' | translate }}</div>
+        <div class="info-card parent-card" *ngFor="let item of parents()">
+          <div class="info-row no-border">
+            <span class="value bold">{{ item.first_name }} {{ item.last_name }}</span>
+            <span class="value link" *ngIf="item.phone">
+              <a href="tel:{{item.phone_prefix}}{{item.phone}}">
+                <ion-icon name="call-outline"></ion-icon> {{ item.phone }}
+              </a>
+            </span>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="section-divider">{{ 'reports' | translate }}</div>
+      <div class="chart-card">
+        <div class="chart-controls">
+          <span class="label">{{ 'date_from' | translate }}</span>
+          <ion-datetime-button datetime="from"></ion-datetime-button>
+        </div>
+
+        <div class="chart-area">
+          <canvas #lineMeasurements></canvas>
+        </div>
+
+        <ion-button expand="block" fill="clear" class="btn-load" (click)="loadData()" [disabled]="isSubmitting()">
+          <ion-spinner *ngIf="isSubmitting()" name="crescent" slot="start"></ion-spinner>
+          {{ 'load_data' | translate }}
+        </ion-button>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <ion-popover trigger="member-options" triggerAction="click" #popover class="custom-popover">
+    <ng-template>
+      <ion-list lines="full">
+        <ion-item button (click)="popover.dismiss(); navigateTo('member-photo', id())">
+          <ion-icon name="camera-outline" slot="start"></ion-icon>
+          <ion-label>{{ 'make_photo' | translate }}</ion-label>
+        </ion-item>
+        <ion-item button (click)="popover.dismiss(); navigateTo('member-edit', id())">
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          <ion-label>{{ 'edit_member' | translate }}</ion-label>
+        </ion-item>
+        <ion-item button *ngIf="showDeleteMember()" (click)="popover.dismiss(); deleteMember()" color="danger">
+          <ion-icon name="trash-outline" slot="start"></ion-icon>
+          <ion-label>{{ 'delete_member' | translate }}</ion-label>
+        </ion-item>
+      </ion-list>
+    </ng-template>
+  </ion-popover>
+</ion-content>

@@ -1,0 +1,53 @@
+<ion-header class="safe-area-top">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'statistic' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  <ion-list lines="none">
+    
+    <ion-card>
+      <ion-item>
+        <ion-label position="stacked">{{ 'select_member' | translate }}*</ion-label>
+        <ion-select [value]="member()" (ionChange)="changedMember($event)">
+          <ion-select-option *ngFor="let item of members()" [value]="item.member_id">
+            {{ (item.membership_number ? item.membership_number + ' - ' : '') + item.first_name + ' ' + item.last_name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-card>
+
+    <ion-card *ngIf="showCalendar()">
+      <ion-item>
+        <span><strong>{{ 'daily_presence' | translate }}:</strong></span>
+      </ion-item>
+      <ion-datetime 
+        presentation="date" 
+        [highlightedDates]="presentsEvents()">
+      </ion-datetime>
+    </ion-card>
+
+    <ion-card>
+      <ion-item>
+        <span><strong>{{ 'monthly_presence' | translate }}:</strong></span>
+      </ion-item>
+      <div class="chart-container" style="position: relative; padding: 10px;">
+        <canvas #barPresents id="barPresents"></canvas>
+      </div>
+    </ion-card>
+
+    <ion-card>
+      <ion-item>
+        <span><strong>{{ 'overall_presence' | translate }}:</strong></span>
+      </ion-item>
+      <div class="chart-container" style="position: relative; padding: 10px;">
+        <canvas #doughnutPresents id="doughnutPresents"></canvas>
+      </div>
+    </ion-card>
+
+  </ion-list>
+</ion-content>

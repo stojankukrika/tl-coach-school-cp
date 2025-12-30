@@ -1,0 +1,73 @@
+// Variables
+$bg-background: #f8fafc;
+$primary-navy: #1a365d; // Your Brand Navy
+$secondary-pink: #d65a9d; // Your Brand Pink (from image_b07c34.png)
+$border-color: #e2e8f0;
+
+.bg_color {
+  --background: #{$bg-background};
+}
+
+.avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 24px;
+
+  .image-wrapper {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #fff;
+    border: 6px solid #fff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+
+    &.skeleton {
+        box-shadow: none;
+        border-color: #f1f5f9;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .action-stack {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+// Button Refinement
+.btn-pick {
+  --background: #{$secondary-pink};
+  --color: #ffffff;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba($secondary-pink, 0.2);
+  height: 48px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.btn-save {
+  --background: #{$primary-navy};
+  --color: #ffffff;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba($primary-navy, 0.2);
+  height: 56px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0;
+  &[disabled] {
+    opacity: 0.7;
+  }
+}

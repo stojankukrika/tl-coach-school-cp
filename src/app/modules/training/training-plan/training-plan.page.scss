@@ -1,0 +1,142 @@
+$bg-background: #f8fafc;
+$card-bg: #ffffff;
+$text-main: #0f172a;
+$text-muted: #64748b;
+$border-color: #e2e8f0;
+$primary-navy: #5b7da1; 
+
+.bg_color { --background: #{$bg-background}; }
+
+.content-wrapper { padding: 20px; }
+
+.section-header {
+  margin-bottom: 20px;
+  .badge {
+    background: rgba($primary-navy, 0.1);
+    color: $primary-navy;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .main-title {
+    margin: 8px 0 0;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: $text-main;
+  }
+}
+
+// Textarea Overrides
+.textarea-wrapper {
+  min-height: 100px !important; // Larger for notes
+  align-items: flex-start !important;
+  padding: 8px 0;
+  
+  ion-textarea {
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+}
+
+// History Feed Styling
+.note-card {
+  background: $card-bg;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid $border-color;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+
+  .note-header {
+    margin-bottom: 12px;
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      .mini-avatar {
+        width: 36px;
+        height: 36px;
+        background: $primary-navy;
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.8rem;
+      }
+      
+      .meta {
+        display: flex;
+        flex-direction: column;
+        .user-name { font-weight: 700; color: $text-main; font-size: 0.9rem; }
+        .note-date { font-size: 0.75rem; color: $text-muted; }
+      }
+    }
+  }
+  
+  .note-body p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: $text-muted;
+  }
+}
+
+// Modern Bottom Sheet for Options
+.option_container {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 999;
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.3s ease;
+  display: flex;
+  align-items: flex-end;
+
+  &.active { visibility: visible; opacity: 1; }
+
+  .option-sheet {
+    background: white;
+    width: 100%;
+    border-radius: 24px 24px 0 0;
+    padding: 20px;
+    padding-bottom: 40px;
+    
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: $border-color;
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      
+      &:active { background: #f1f5f9; }
+      
+      ion-icon { font-size: 1.4rem; color: $primary-navy; }
+      span { font-weight: 700; color: $text-main; font-size: 1rem; }
+    }
+  }
+}
+
+.btn-save {
+  --background: #{$primary-navy};
+  --border-radius: 12px;
+  height: 60px;
+  margin-top: 10px;
+  font-weight: 700;
+}

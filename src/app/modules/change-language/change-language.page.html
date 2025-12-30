@@ -1,0 +1,40 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">{{ 'select_language' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg-background">
+  <div class="content-wrapper p-4">
+
+    <div class="language-list">
+      
+      <button 
+        *ngFor="let lang of languages()" 
+        class="lang-card ion-activatable ripple-parent"
+        (click)="onLanguageClick(lang)">
+        
+        <span class="lang-name">{{ lang.name }}</span>
+        
+        <div class="checkbox-custom" 
+             [class.checked]="defaultLanguageCode() === lang.code">
+          <ion-icon name="checkmark-outline" *ngIf="defaultLanguageCode() === lang.code"></ion-icon>
+        </div>
+
+        <ion-ripple-effect></ion-ripple-effect>
+      </button>
+
+    </div>
+
+    <ion-button 
+      expand="block" 
+      class="save-btn mt-6" 
+      (click)="languageConfirm()">
+      {{ 'save' | translate }}
+    </ion-button>
+
+  </div>
+</ion-content>

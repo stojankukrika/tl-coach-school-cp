@@ -1,0 +1,44 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'member_change_groups' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+    <ion-list lines="full">
+      <ion-item class="animate__animated animate__fadeInUp">
+        <ion-label position="stacked">{{ 'groups' | translate }}*</ion-label>
+        <ion-select 
+          multiple="true" 
+          [value]="selectedGroups()" 
+          (ionChange)="selectedGroups.set($event.detail.value)">
+          <ion-select-option *ngFor="let item of groups()" [value]="item.id">
+            {{ item.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+
+    <div class="ion-padding">
+      <ion-button 
+        expand="block" 
+        size="large" 
+        class="btn animate__animated animate__fadeInUp"
+        (click)="save()" 
+        [disabled]="!isValid() || isSubmitting()">
+        
+        <ion-spinner name="dots" *ngIf="isSubmitting()"></ion-spinner>
+        <span *ngIf="!isSubmitting()">{{ 'save' | translate }}</span>
+        
+      </ion-button>
+    </div>
+  </ng-container>
+</ion-content>

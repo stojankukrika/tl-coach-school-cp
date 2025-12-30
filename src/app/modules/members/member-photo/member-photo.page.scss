@@ -1,0 +1,103 @@
+$bg-background: #f8fafc;
+$card-bg: #ffffff;
+$text-main: #0f172a;
+$text-muted: #64748b;
+$border-color: #e2e8f0;
+$primary-navy: #5b7da1; 
+
+.bg_color { --background: #{$bg-background}; }
+
+.content-wrapper {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80%;
+}
+
+.photo-container {
+  width: 100%;
+  text-align: center;
+
+  .avatar-frame {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 24px;
+    border-radius: 54px; // Branded Squircle
+    background: $card-bg;
+    padding: 6px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    border: 1px solid $border-color;
+    transition: transform 0.2s active;
+
+    &:active { transform: scale(0.95); }
+
+    .member-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 48px;
+    }
+
+    .overlay-icon {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      background: $primary-navy;
+      color: white;
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      border: 4px solid $bg-background;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .info-text {
+    margin-bottom: 32px;
+    h3 {
+      font-weight: 800;
+      color: $text-main;
+      margin-bottom: 6px;
+      font-size: 1.2rem;
+    }
+    p {
+      color: $text-muted;
+      font-size: 0.85rem;
+      padding: 0 30px;
+      line-height: 1.4;
+    }
+  }
+}
+
+.action-stack {
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+
+  .btn-pick {
+    --border-color: #{$primary-navy};
+    --color: #{$primary-navy};
+    --border-radius: 12px;
+    font-weight: 700;
+    height: 54px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.btn-save {
+  --background: #{$primary-navy};
+  --border-radius: 12px; 
+  height: 60px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

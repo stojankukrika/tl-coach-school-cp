@@ -1,0 +1,118 @@
+// Brand Variables
+$bg-background: #f8fafc;
+$card-bg: #ffffff;
+$text-main: #0f172a;
+$text-muted: #64748b;
+$border-color: #e2e8f0;
+$primary-navy: #5b7da1; 
+
+.bg_color { --background: #{$bg-background}; }
+
+.content-wrapper {
+  padding: 16px;
+}
+
+// 1. Searchbar Customization
+.search-container {
+  margin-bottom: 24px;
+
+  .custom-searchbar {
+    padding: 0;
+    --background: #{$card-bg};
+    --border-radius: 12px;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    --placeholder-color: #{$text-muted};
+    --icon-color: #{$primary-navy};
+    --clear-button-color: #{$text-muted};
+    border: 1px solid $border-color;
+    height: 54px;
+    transition: all 0.2s ease;
+
+    &:focus-within {
+      border-color: $primary-navy;
+      box-shadow: 0 0 0 3px rgba($primary-navy, 0.1);
+    }
+  }
+}
+
+// 2. Member Card Styling
+.results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.member-card {
+  background: $card-bg;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  border: 1px solid $border-color;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  transition: transform 0.1s active;
+
+  &:active {
+    transform: scale(0.98);
+    background: #fcfcfc;
+  }
+
+  .avatar-box {
+    width: 44px;
+    height: 44px;
+    background: rgba($primary-navy, 0.08);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 14px;
+
+    ion-icon {
+      font-size: 22px;
+      color: $primary-navy;
+    }
+  }
+
+  .member-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    .member-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: $text-main;
+    }
+
+    .member-id {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: $text-muted;
+      margin-top: 2px;
+    }
+  }
+
+  .detail-icon {
+    color: $text-muted;
+    font-size: 18px;
+    opacity: 0.5;
+  }
+}
+
+// 3. Empty State Styling
+.empty-state {
+  text-align: center;
+  margin-top: 60px;
+  
+  ion-icon {
+    font-size: 64px;
+    color: $border-color;
+    margin-bottom: 12px;
+  }
+  
+  p {
+    color: $text-muted;
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+}

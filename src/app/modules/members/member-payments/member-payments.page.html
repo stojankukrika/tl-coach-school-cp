@@ -1,0 +1,72 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'member_payments' | translate }}</ion-title>
+    
+    <ion-buttons slot="end" *ngIf="hasMemberSelected()">
+      <ion-button (click)="addPayment()">
+        <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  <div class="ion-padding-horizontal ion-margin-top">
+    <ion-searchbar 
+      [placeholder]="'search_member' | translate" 
+      (ionInput)="handleSearch($event)"
+      debounce="300">
+    </ion-searchbar>
+  </div>
+
+  <ion-list lines="full" *ngIf="isSearchVisible()">
+    <ion-item button *ngFor="let member of searchResults()" (click)="selectMember(member)">
+      <ion-label>
+        <h2>{{ member.name }}</h2>
+        <p>{{ member.membership_number }}</p>
+      </ion-label>
+      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+    </ion-item>
+  </ion-list>
+
+  <ng-container *ngIf="isPaymentsVisible() && !isSearchVisible()">
+    
+    <ion-item lines="none" class="ion-margin-top">
+      <ion-label>
+        <p>{{ 'payments_for' | translate }}</p>
+        <h1 style="margin-top: 4px;">{{ memberName() }}</h1>
+      </ion-label>
+      
+      <ion-select 
+        slot="end" 
+        interface="popover" 
+        [value]="selectedYear()" 
+        (ionChange)="selectedYear.set($event.detail.value); refreshData()">
+        <ion-select-option *ngFor="let y of years()" [value]="y">{{ y }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-card class="ion-no-margin ion-margin-top">
+      <ion-list lines="full">
+        <ion-item *ngFor="let payment of membershipPayments()">
+          <ion-label>{{ payment.month_name }}</ion-label>
+          <ion-badge 
+            slot="end" 
+            [color]="payment.is_paid ? 'success' : 'danger'"
+            (click)="changeStatus(payment.month, !payment.is_paid)">
+            {{ (payment.is_paid ? 'paid' : 'unpaid') | translate }}
+          </ion-badge>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+  </ng-container>
+
+  <div *ngIf="!hasMemberSelected() && !isSearchVisible()" class="ion-padding ion-text-center ion-margin-top">
+    <ion-icon name="search-outline" style="font-size: 3rem; color: var(--ion-color-medium);"></ion-icon>
+    <p color="medium">{{ 'select_member_to_view_payments' | translate }}</p>
+  </div>
+</ion-content>

@@ -1,0 +1,57 @@
+.paper-logbook {
+  background: #fff;
+  border: 1px solid #ccc;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+
+  .log-row {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid #eee;
+    min-height: 45px;
+
+    &.header {
+      background: #f4f4f4;
+      font-weight: bold;
+      border-bottom: 2px solid #ccc;
+    }
+  }
+
+  .col-name {
+    flex: 1; // Takes up more space for the name
+    padding: 10px 5px;
+    font-size: 0.85rem;
+    border-right: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .days-container {
+    flex: 3; // Space for the attendance boxes
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .day-cell {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #f0f0f0;
+    font-size: 0.7rem;
+
+    &.status-box {
+      cursor: pointer;
+      transition: background 0.2s;
+      
+      &.present { background-color: rgba(45, 211, 111, 0.2); } // Light Green
+      &.absent { background-color: rgba(235, 68, 90, 0.2); }   // Light Red
+
+      ion-icon { font-size: 1rem; }
+    }
+  }
+}

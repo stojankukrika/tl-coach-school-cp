@@ -1,0 +1,41 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" defaultHref="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'avatar' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  <ng-container *ngIf="show(); else skeletonContent">
+    <div class="avatar-container animate__animated animate__zoomIn">
+      <div class="image-wrapper">
+        <img [src]="user().photo || user().profile_photo_url" alt="Avatar" />
+      </div>
+
+      <div class="action-stack">
+        <ion-button expand="block" class="btn-pick" (click)="pickImage()">
+          {{ 'take_photo' | translate }}*
+        </ion-button>
+        
+        <ion-button expand="block" class="btn-save" (click)="save()" [disabled]="clicked()">
+          <ion-spinner name="crescent" *ngIf="clicked()"></ion-spinner>
+          <span *ngIf="!clicked()">{{ 'save' | translate }}</span>
+        </ion-button>
+      </div>
+    </div>
+  </ng-container>
+</ion-content>
+
+<ng-template #skeletonContent>
+  <div class="avatar-container">
+    <div class="image-wrapper skeleton">
+      <ion-skeleton-text animated style="width: 100%; height: 100%; margin: 0;"></ion-skeleton-text>
+    </div>
+    <div class="action-stack">
+      <ion-skeleton-text animated style="width: 100%; height: 48px; border-radius: 12px; margin-bottom: 12px;"></ion-skeleton-text>
+      <ion-skeleton-text animated style="width: 100%; height: 56px; border-radius: 12px;"></ion-skeleton-text>
+    </div>
+  </div>
+</ng-template>

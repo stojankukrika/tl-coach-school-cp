@@ -1,0 +1,55 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'search_member' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  <div class="content-wrapper">
+    
+    <div class="search-container">
+      <ion-searchbar 
+        mode="md"
+        class="custom-searchbar"
+        show-clear-button="always" 
+        [placeholder]="'search_member' | translate"
+        [debounce]="300" 
+        (ionInput)="handleSearch($event)">
+      </ion-searchbar>
+    </div>
+
+    <div *ngIf="isLoading()" class="ion-padding ion-text-center">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    </div>
+
+    <div class="results-container" *ngIf="showList()">
+      <div 
+        class="member-card animate__animated animate__fadeInUp" 
+        *ngFor="let member of results()" 
+        (click)="selectMember(member)">
+        
+        <div class="avatar-box">
+          <ion-icon name="person-outline"></ion-icon>
+        </div>
+        
+        <div class="member-info">
+          <span class="member-name">{{ member.name }}</span>
+          <span class="member-id" *ngIf="member.membership_number">
+             #{{ member.membership_number }}
+          </span>
+        </div>
+
+        <ion-icon name="chevron-forward-outline" class="detail-icon"></ion-icon>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading() && !showList() && results().length === 0" class="empty-state">
+      <ion-icon name="search-outline"></ion-icon>
+      <p>{{ 'no_results' | translate }}</p>
+    </div>
+
+  </div>
+</ion-content>

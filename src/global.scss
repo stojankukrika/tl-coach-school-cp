@@ -1,0 +1,208 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+// @import "@ionic/angular/css/palettes/dark.system.css";
+
+@import 'animate.css';
+
+*{
+    font-family: "regular";
+}
+html, body { 
+  background: var(--ion-color-primary) !important;
+ }
+ion-header{
+    border: none !important;
+    --border: none !important;
+    box-shadow: none !important;
+    --box-shadow: none !important;
+    
+    ion-toolbar{
+    min-height: 60px;
+        border-bottom: 1px solid var(--ion-color-light-shade) ;
+      --background: var(--ion-color-primary);
+      color: var(--ion-color-light);
+      ion-label, ion-title{
+      color: var(--ion-color-light);
+
+      }
+    }
+}
+/* Fix for Quill icons being too small in Ionic */
+.ql-toolbar button ion-icon {
+  display: none !important; /* Prevents Ionic from trying to render icons inside Quill buttons */
+}
+quill-editor{
+      background: white;
+    width: 100%;
+}
+ion-toolbar{
+    border-bottom: 1px solid var(--ion-color-light-shade) ;
+}
+/* =========================================================================
+   A. ION-DATETIME STYLING (Themed)
+   ========================================================================= */
+
+ion-datetime {
+  // Set the background to the theme's card/secondary color for contrast
+  --background: var(--card);
+  // Use background-rgb for compatibility with Ionic's internal calculations
+  --background-rgb: var(--card-rgb); // Assuming a card-rgb is generated, otherwise use a fallback
+  
+  // The highlight color for the selected date/time in the calendar or wheel
+  --wheel-highlight-background: color-mix(in oklch, var(--primary) 20%, transparent); // A light primary tint
+  
+  // Keep the rounded style for the highlight ring
+  --wheel-highlight-border-radius: var(--radius); // Use the theme radius
+  
+  // The color used for the fade at the top/bottom of the wheel
+  --wheel-fade-background-rgb: var(--card-rgb); // Should match the background
+  
+  // The default text color for wheel items (unselected)
+  --color: var(--foreground); 
+}
+
+// Targeting unselected items in the wheel for text color
+ion-datetime::part(wheel-item) {
+  // Use the muted foreground color for unselected items
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+// Targeting the active (selected) item in the wheel
+// Note: The correct part selector for active wheel items in Ionic is typically handled by the --wheel-highlight-color
+// However, to force the text color on the active item:
+ion-datetime::part(wheel-item active) {
+  // Use the Primary color for the active item text
+  color: var(--primary);
+  font-weight: 600;
+}
+
+// Targeting the calendar/date buttons and title (optional, but good practice)
+ion-datetime::part(calendar-day),
+ion-datetime::part(month-year-button) {
+  color: var(--foreground);
+}
+
+// Targeting the today button or selected date text color in the calendar view
+ion-datetime::part(calendar-day active),
+ion-datetime::part(calendar-day today) {
+  color: var(--primary); 
+  // --background-activated is used for the active date's circle background
+  --background-activated: var(--primary);
+  --color-activated: var(--primary-foreground); // White text on primary background
+}
+
+
+ion-datetime {
+  font-family: "medium";
+
+  border-radius: 16px;
+  box-shadow: rgba(var(--ion-color-rose-rgb), 0.3) 0px 10px 15px -3px;
+}
+
+ion-datetime::part(calendar-day) {
+  color: var(--primary);
+  font-weight: 500;
+  font-family: "medium";
+  border-radius: 50%;
+}
+
+ion-datetime::part(calendar-day today) {
+  color: #8462d1;
+}
+
+ion-datetime::part(calendar-day):focus {
+  background-color: rgb(154 209 98 / 0.2);
+  box-shadow: 0px 0px 0px 4px rgb(154 209 98 / 0.2);
+}
+
+/*
+* Custom Material Design Datetime Day Parts
+* -------------------------------------------
+*/
+
+ion-datetime.md::part(calendar-day active),
+ion-datetime.md::part(calendar-day active):focus {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+ion-datetime.md::part(calendar-day today) {
+  border-color: var(--primary);
+}
+
+/*
+* Custom iOS Datetime Day Parts
+* -------------------------------------------
+*/
+
+ion-datetime.ios::part(calendar-day active),
+ion-datetime.ios::part(calendar-day active):focus {
+  background-color: var(--primary);
+  color: #fff;
+}
+ion-footer{
+    position: fixed;
+    bottom: 0;
+    padding: 16px 0;
+    background: var(--ion-color-light);
+}
+ion-datetime, ion-item, ion-select, ion-ripple-effect{
+  overflow: hidden !important;
+}
+ion-select{
+  position: relative;
+
+  &::part(icon) {
+    position: absolute;
+    inset-inline-end: 16px;
+  }
+}
+
+ion-popover{
+  ion-list{
+    padding: 0 !important;
+    ion-label{
+      white-space: nowrap !important;
+    }
+  }
+  &::part(content){
+    max-width: fit-content;
+  }
+}
+

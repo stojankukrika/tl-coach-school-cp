@@ -1,0 +1,97 @@
+import { Component, OnInit, inject, signal, WritableSignal, computed } from '@angular/core';
+import { NavController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
+import { AuthConstants } from 'src/app/core/config/auth-constants';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { StorageService } from 'src/app/core/services/storage.service'; // Added
+import { ToastService } from 'src/app/core/services/toast.service';
+
+@Component({
+  selector: 'app-edit-profile',
+  templateUrl: './edit-profile.page.html',
+  styleUrls: ['./edit-profile.page.scss'],
+  standalone: false
+})
+export class EditProfilePage implements OnInit {
+
+  // --- Dependency Injection ---
+  public authService = inject(AuthService);
+  public translate = inject(TranslateService);
+  private navCtrl = inject(NavController);
+  public toastService = inject(ToastService);
+  private storage = inject(StorageService); // Injected StorageService
+
+  // --- State as Writable Signals ---
+  showDetails: WritableSignal<boolean> = signal(false);
+  user: WritableSignal<any | null> = signal(null);
+  clicked: WritableSignal<boolean> = signal(false);
+
+  // --- Computed Signals ---
+  isInputValid = computed(() => {
+    const u = this.user();
+    if (!u) return false;
+
+    const email = u.email;
+    const first_name = u.first_name;
+    const last_name = u.last_name;
+
+    return (
+      !!email && email.trim().length > 0 &&
+      !!first_name && first_name.trim().length > 0 &&
+      !!last_name && last_name.trim().length > 0
+    );
+  });
+
+  constructor() {}
+
+  // --- Lifecycle Hooks ---
+  async ngOnInit() {
+    // Refactored to use async StorageService
+    const userData = await this.storage.get(AuthConstants.AUTH);
+    if (userData) {
+      this.user.set(userData);
+    }
+    this.showDetails.set(true);
+  }
+
+  // --- Public Methods ---
+
+  updateUserField<K extends keyof any>(key: K, value: any[K]): void {
+    this.user.update(current => ({
+      ...current!,
+      [key]: value
+    }));
+  }
+
+  save() {
+    if (this.isInputValid()) {
+      this.clicked.set(true);
+      
+      const payload = this.user();
+
+      if (!payload) {
+         this.clicked.set(false);
+         this.toastService.presentToast(this.translate.instant('error_loading_user'));
+         return;
+      }
+      
+      this.authService.profile(payload).subscribe({
+        next: async (res: any) => {
+          // Refactored to async storage.set
+          // StorageService handles JSON.stringify automatically
+          await this.storage.set(AuthConstants.AUTH, res.user);
+          
+          this.clicked.set(false);
+          this.navCtrl.pop(); 
+        },
+        error: (data: any) => {
+          this.clicked.set(false);
+          this.toastService.presentToast(this.translate.instant(data?.error?.message || 'save_error'));
+        }
+      });
+    } else {
+      this.clicked.set(false);
+      this.toastService.presentToast(this.translate.instant('form_not_filled_right'));
+    }
+  }
+}

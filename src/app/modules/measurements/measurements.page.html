@@ -1,0 +1,107 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'measurement' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  <div class="content-wrapper animate__animated animate__fadeIn" *ngIf="!isLoading()">
+    
+    <div class="info-card date-card">
+      <div class="info-row no-border">
+        <span class="label">{{ 'date' | translate }}</span>
+        <div class="date-wrapper">
+          <ion-datetime-button datetime="datetime"></ion-datetime-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-container">
+      <div class="section-divider">{{ 'configuration' | translate }}</div>
+
+      <ng-container *ngIf="measurementType() === 'individual'">
+        <div class="form-group" *ngIf="categories().length > 0">
+          <label class="input-label">{{ 'category' | translate }}</label>
+          <div class="custom-input-wrapper">
+            <ion-select interface="popover" [value]="selectedCategory()" (ionChange)="selectedCategory.set($event.detail.value)">
+              <ion-select-option *ngFor="let category of categories()" [value]="category">
+                {{ category.name }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="selectedCategory()">
+          <label class="input-label">{{ 'value' | translate }}</label>
+          <div class="custom-input-wrapper">
+            <ion-select interface="popover" [value]="selectedValue()" (ionChange)="selectedValue.set($event.detail.value); changeCategoryValue()">
+              <ion-select-option *ngFor="let val of selectedCategory().values_array" [value]="val">
+                {{ val }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="measurementType() !== 'individual'">
+        <div class="form-group" *ngFor="let category of categories()">
+          <label class="input-label">{{ category.name }}</label>
+          <div class="custom-input-wrapper">
+            <ion-select interface="popover" [value]="category.value" (ionChange)="category.value = $event.detail.value">
+              <ion-select-option *ngFor="let item of category.values_array" [value]="item">
+                {{ item }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="form-group" *ngIf="showKey()">
+        <label class="input-label">{{ 'measurement_name' | translate }}</label>
+        <div class="custom-input-wrapper">
+          <ion-input type="text" [placeholder]="'enter_name' | translate"></ion-input>
+        </div>
+      </div>
+    </div>
+
+    <div class="member-list-section">
+      <div class="section-divider">{{ 'members' | translate }}</div>
+      
+      <div class="member-entry-card animate__animated animate__fadeInUp" *ngFor="let item of members()">
+        <div class="member-info">
+          <div class="member-meta">
+            <span class="id-badge">#{{ item.membership_number }}</span>
+            <span class="birth-date">{{ item.birth_date }}</span>
+          </div>
+          <h3 class="member-name">{{ item.first_name }} {{ item.last_name }}</h3>
+        </div>
+
+        <div class="value-input-container">
+          <ion-input 
+            type="number" 
+            placeholder="0" 
+            [value]="item.value"
+            (ionInput)="item.value = $event.detail.value"
+            class="entry-input">
+          </ion-input>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <ion-modal [keepContentsMounted]="true">
+    <ng-template>
+      <ion-datetime id="datetime" [value]="datetime()" [disabled]="true"></ion-datetime>
+    </ng-template>
+  </ion-modal>
+</ion-content>
+
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" class="safe-area-bottom">
+  <ion-fab-button (click)="saveEntry()" class="custom-fab">
+    <ion-icon name="checkmark-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>

@@ -1,0 +1,7 @@
+{
+  "name": "treniraj-lako-skola-sporta",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

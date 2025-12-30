@@ -1,0 +1,123 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'edit_member' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <div class="content-wrapper animate__animated animate__fadeIn" *ngIf="!isLoading() && member()">
+    <div class="form-container">
+
+      <div class="form-group">
+        <label class="input-label">{{ 'first_name' | translate }}<span class="required">*</span></label>
+        <div class="custom-input-wrapper">
+          <ion-input 
+            type="text" 
+            [value]="member().first_name"
+            (ionInput)="updateMemberField('first_name', $event.detail.value)">
+          </ion-input>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="input-label">{{ 'last_name' | translate }}<span class="required">*</span></label>
+        <div class="custom-input-wrapper">
+          <ion-input 
+            type="text" 
+            [value]="member().last_name"
+            (ionInput)="updateMemberField('last_name', $event.detail.value)">
+          </ion-input>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="input-label">{{ 'birth_date' | translate }}</label>
+        <div class="custom-input-wrapper date-input-wrapper">
+          <ion-datetime-button datetime="birthdate"></ion-datetime-button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="input-label">{{ 'groups' | translate }}<span class="required">*</span></label>
+        <div class="custom-input-wrapper">
+          <ion-select 
+            multiple="true" 
+            interface="popover"
+            [value]="member().group_ids"
+            (ionChange)="updateMemberField('group_ids', $event.detail.value)"
+            toggleIcon="chevron-down-outline">
+            <ion-select-option *ngFor="let item of groups()" [value]="item.id">
+              {{ item.name }}
+            </ion-select-option>
+          </ion-select>
+        </div>
+      </div>
+
+      <div class="section-divider">{{ 'emergency_contact' | translate }}</div>
+
+      <div class="form-group">
+        <label class="input-label">{{ 'urgent_contact' | translate }}</label>
+        <div class="custom-input-wrapper">
+          <ion-input 
+            [value]="member().urgent_contact"
+            (ionInput)="updateMemberField('urgent_contact', $event.detail.value)">
+          </ion-input>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="input-label">{{ 'phone' | translate }}</label>
+        <div class="custom-input-wrapper">
+          <ion-input 
+            type="tel" 
+            [value]="member().urgent_phone"
+            (ionInput)="updateMemberField('urgent_phone', $event.detail.value)">
+          </ion-input>
+        </div>
+      </div>
+
+      <div class="form-group" *ngFor="let item of customFields()">
+        <label class="input-label">{{ item.label }}</label>
+        <div class="custom-input-wrapper">
+          <ion-input 
+            [value]="item.value"
+            (ionInput)="item.value = $event.detail.value">
+          </ion-input>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <ion-modal [keepContentsMounted]="true">
+    <ng-template>
+      <ion-datetime 
+        id="birthdate" 
+        presentation="date"
+        [preferWheel]="true"
+        [max]="maxDate()"
+        [value]="member()?.birth_date"
+        (ionChange)="updateMemberField('birth_date', $event.detail.value)">
+      </ion-datetime>
+    </ng-template>
+  </ion-modal>
+</ion-content>
+
+<ion-footer class="ion-no-border ion-padding-start ion-padding-end">
+  <ion-button 
+    expand="block" 
+    shape="round" 
+    class="btn-save"
+    [disabled]="!isValid() || isSubmitting()"
+    (click)="save()">
+    <ion-spinner *ngIf="isSubmitting()" name="crescent" slot="start"></ion-spinner>
+    {{ 'save' | translate }}
+  </ion-button>
+</ion-footer>

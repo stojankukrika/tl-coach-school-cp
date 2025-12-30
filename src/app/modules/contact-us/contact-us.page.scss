@@ -1,0 +1,58 @@
+$primary-navy: #1a365d;
+$border-color: #e2e8f0;
+$text-muted: #64748b;
+
+.bg_color { --background: #f8fafc; }
+
+.header-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid $border-color;
+  
+  .instruction-text {
+    margin: 0;
+    color: $text-muted;
+    font-size: 1.5rem;
+    line-height: 1.5;
+  }
+}
+
+.list-item {
+  .input-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-left: 4px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .editor-wrapper {
+    background: #fff;
+    border: 1px solid $border-color;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+
+    ion-textarea {
+      --padding-start: 16px;
+      --padding-top: 16px;
+      --color: #0f172a;
+      min-height: 250px;
+      font-weight: 500;
+    }
+  }
+}
+
+.btn-save {
+  --background: #{$primary-navy};
+  --border-radius: 12px;
+  height: 60px;
+  margin: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+}

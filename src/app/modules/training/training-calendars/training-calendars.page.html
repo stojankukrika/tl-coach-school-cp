@@ -1,0 +1,50 @@
+<ion-header class="safe-area-top">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'training_calendars' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color" *ngIf="show()">
+  
+  <div *ngIf="trainingCalendars().length > 0">
+    <ion-card *ngFor="let item of trainingCalendars()">
+      <ion-item lines="none">
+        <ion-label>
+          <h2 style="font-weight: bold;">{{ item.title }}</h2>
+          <p>{{ item.from }} - {{ item.to }}</p>
+        </ion-label>
+      </ion-item>
+      
+      <ion-item lines="none">
+        <p class="ion-text-wrap">{{ item.content }}</p>
+      </ion-item>
+
+      <ion-row class="ion-padding-horizontal ion-padding-bottom">
+        <ion-button size="small" (click)="showTrainingCalendar(item)" color="secondary">
+          {{ 'add_results' | translate }}
+        </ion-button>
+        
+        <ion-button size="small" *ngIf="!item.video" (click)="addVideoTrainingCalendar(item)" color="primary">
+          {{ 'add_video' | translate }}
+        </ion-button>
+      </ion-row>
+    </ion-card>
+
+    <ion-infinite-scroll threshold="10%" (ionInfinite)="onIonInfinite($event)">
+      <ion-infinite-scroll-content 
+        loadingText="{{'please_wait' | translate}}"
+        loadingSpinner="bubbles">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </div>
+
+  <div *ngIf="trainingCalendars().length === 0" class="ion-padding ion-text-center">
+    <ion-list style="color: var(--ion-color-secondary)">
+      {{ 'no_results' | translate }}
+    </ion-list>
+  </div>
+
+</ion-content>

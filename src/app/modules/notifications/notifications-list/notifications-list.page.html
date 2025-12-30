@@ -1,0 +1,49 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'notifications' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoading()">
+    
+    <ion-list lines="full" *ngIf="notifications().length > 0">
+      <ion-item 
+        button 
+        detail="true" 
+        *ngFor="let item of notifications()" 
+        (click)="showItem(item)"
+        class="animate__animated animate__fadeInUp">
+        
+        <ion-icon 
+          *ngIf="item.read_at === null" 
+          slot="start" 
+          name="alert-circle-outline" 
+          color="secondary">
+        </ion-icon>
+
+        <ion-label>
+          <h2 [class.unread-text]="item.read_at === null">{{ item.title }}</h2>
+          <p *ngIf="item.created_at">{{ item.created_at | date:'shortDate' }}</p>
+        </ion-label>
+
+        <ion-note slot="end" color="primary" class="ion-text-uppercase" style="font-size: 0.8rem;">
+          {{ 'details' | translate }}
+        </ion-note>
+      </ion-item>
+    </ion-list>
+
+    <div *ngIf="notifications().length === 0" class="ion-padding ion-text-center animate__animated animate__fadeIn">
+      <ion-icon name="notifications-off-outline" style="font-size: 3rem; color: var(--ion-color-medium);"></ion-icon>
+      <h3 style="color: var(--ion-color-medium);">{{ 'no_results' | translate }}</h3>
+    </div>
+
+  </ng-container>
+</ion-content>

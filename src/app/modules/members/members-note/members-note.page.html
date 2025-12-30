@@ -1,0 +1,76 @@
+<ion-header class="safe-area-top ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'note' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <div class="content-wrapper animate__animated animate__fadeIn" *ngIf="!isLoading()">
+    
+    <ng-container *ngIf="statusMembers().length > 0; else emptyState">
+      <div class="form-container">
+        
+        <div class="form-group">
+          <label class="input-label">{{ 'select_member' | translate }}<span class="required">*</span></label>
+          <div class="custom-input-wrapper">
+            <ion-select 
+              interface="popover"
+              [value]="selectedMemberId()" 
+              (ionChange)="selectedMemberId.set($event.detail.value)"
+              [placeholder]="'choose_member' | translate"
+              toggleIcon="chevron-down-outline">
+              <ion-select-option *ngFor="let item of statusMembers()" [value]="item.member_id">
+                {{ item.first_name }} {{ item.last_name }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="selectedMemberId()">
+          <label class="input-label">{{ 'enter_note' | translate }}<span class="required">*</span></label>
+          <div class="custom-input-wrapper textarea-wrapper">
+            <ion-textarea 
+              [rows]="8" 
+              [value]="noteValue()" 
+              (ionInput)="noteValue.set($event.detail.value)"
+              [placeholder]="'type_something' | translate"
+              auto-grow="true">
+            </ion-textarea>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <ng-template #emptyState>
+      <div class="empty-state-container">
+        <div class="icon-box">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <p>{{ 'no_members_present' | translate }}</p>
+      </div>
+    </ng-template>
+
+  </div>
+
+  <ion-toast
+    [isOpen]="isToastOpen()"
+    [message]="'note_saved' | translate"
+    [duration]="3000"
+    (didDismiss)="isToastOpen.set(false)">
+  </ion-toast>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="safe-area-bottom">
+    <ion-fab-button (click)="saveEntry()" [disabled]="!isValid() || isSubmitting()" class="custom-fab">
+      <ion-spinner *ngIf="isSubmitting()" name="crescent"></ion-spinner>
+      <ion-icon *ngIf="!isSubmitting()" name="checkmark-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
