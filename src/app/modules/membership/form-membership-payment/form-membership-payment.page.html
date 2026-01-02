@@ -1,104 +1,239 @@
-<ion-header class="safe-area-top ion-no-border">
+<ion-header class="ion-no-border">
   <ion-toolbar>
+
     <ion-buttons slot="start">
-      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+      <ion-back-button
+        text=""
+        icon="chevron-back-outline"
+        defaultHref="home">
+      </ion-back-button>
     </ion-buttons>
-    <ion-title>{{ 'create_membership_payment' | translate }}</ion-title>
+
+    <ion-title>
+      {{ 'create_membership_payment' | translate }}
+    </ion-title>
+
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="bg_color">
-  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
-    <ion-spinner name="crescent"></ion-spinner>
-  </div>
+<ion-content class="bg_color ion-padding">
 
-  <ion-list lines="full" *ngIf="!isLoading()">
-    <ion-item class="animate__animated animate__fadeInUp">
-      <ion-label position="stacked">{{ 'amount' | translate }}*</ion-label>
-      <ion-input 
-        type="number" 
-        [value]="payment().amount"
-        (ionInput)="updatePaymentField('amount', $event.detail.value)">
-      </ion-input>
-    </ion-item>
+  <!-- SKELETON -->
+  @if (!show()) {
+    <div>
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="skeleton-card ion-margin-bottom">
+          <ion-skeleton-text
+            animated
+            style="width: 30%; height: 16px; margin-bottom: 10px;">
+          </ion-skeleton-text>
 
-    <ion-item class="animate__animated animate__fadeInUp">
-      <ion-label>{{ 'date' | translate }}</ion-label>
-      <ion-datetime-button datetime="payment-date"></ion-datetime-button>
-      <ion-modal [keepContentsMounted]="true">
-        <ng-template>
-          <ion-datetime 
-            id="payment-date" 
-            presentation="date"
-            [max]="maxDate()"
-            [value]="payment().date"
-            (ionChange)="updatePaymentField('date', $event.detail.value)">
-          </ion-datetime>
-        </ng-template>
-      </ion-modal>
-    </ion-item>
+          <ion-skeleton-text
+            animated
+            style="width: 100%; height: 52px; border-radius: 12px;">
+          </ion-skeleton-text>
+        </div>
+      }
+    </div>
+  }
 
-    <ion-item class="animate__animated animate__fadeInUp">
-      <ion-label position="stacked">{{ 'payment_method' | translate }}*</ion-label>
-      <ion-select 
-        [value]="payment().payment_method"
-        (ionChange)="updatePaymentField('payment_method', $event.detail.value)">
-        <ion-select-option *ngFor="let item of paymentMethods()" [value]="item">
-          {{ 'payment_method_' + item | translate }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
+  <!-- CONTENT -->
+  @if (show()) {
+    <div class="dashboard-wrapper animate__animated animate__fadeIn">
 
-    <ion-item-divider>
-      <ion-label>{{ 'membership_details' | translate }} ({{ 'optional' | translate }})</ion-label>
-    </ion-item-divider>
+      <!-- PAYMENT DETAILS -->
+      <div class="section-container">
+        <h3 class="section-label-slate">
+          {{ 'payment_details' | translate }}
+        </h3>
 
-    <ion-item class="animate__animated animate__fadeInUp">
-      <ion-label position="stacked">{{ 'year' | translate }}</ion-label>
-      <ion-select [value]="selectedYear()" (ionChange)="selectedYear.set($event.detail.value)">
-        <ion-select-option *ngFor="let item of years()" [value]="item.year">{{ item.year }}</ion-select-option>
-      </ion-select>
-    </ion-item>
+        <div class="form-card">
 
-    <ion-item class="animate__animated animate__fadeInUp">
-      <ion-label position="stacked">{{ 'select_month' | translate }}</ion-label>
-      <ion-select [value]="selectedMonth()" (ionChange)="selectedMonth.set($event.detail.value)">
-        <ion-select-option *ngFor="let item of months()" [value]="item">
-          {{ 'month_' + item | translate }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
+          <!-- AMOUNT -->
+          <div class="input-group">
+            <label class="field-label">
+              {{ 'amount' | translate }}*
+            </label>
 
-    <ion-item class="animate__animated animate__fadeInUp">
-      <ion-label position="stacked">{{ 'payment_name' | translate }}</ion-label>
-      <ion-input 
-        type="text" 
-        [value]="payment().name"
-        (ionInput)="updatePaymentField('name', $event.detail.value)">
-      </ion-input>
-    </ion-item>
+            <div class="custom-input-box">
+              <ion-input
+                type="number"
+                placeholder="0.00"
+                [(ngModel)]="payment().amount">
+              </ion-input>
 
-    <ion-item class="animate__animated animate__fadeInUp">
-      <ion-label position="stacked">{{ 'payer_name' | translate }}</ion-label>
-      <ion-input 
-        type="text" 
-        [value]="payment().payer_name"
-        (ionInput)="updatePaymentField('payer_name', $event.detail.value)">
-      </ion-input>
-    </ion-item>
-  </ion-list>
+<!--              <span class="currency-tag">EUR</span>-->
+            </div>
+          </div>
+
+          <!-- DATE -->
+          <div class="input-group ion-margin-top">
+            <label class="field-label">
+              {{ 'date' | translate }}
+            </label>
+
+            <div class="date-picker-wrapper">
+              <ion-datetime
+                presentation="date"
+                [preferWheel]="true"
+                [max]="maxDate()"
+                [(ngModel)]="payment().date">
+              </ion-datetime>
+            </div>
+          </div>
+
+          <!-- DATE EXPIRED -->
+          @if (showEndDate()) {
+            <div class="input-group ion-margin-top">
+              <label class="field-label">
+                {{ 'date_expired' | translate }}
+              </label>
+
+              <div class="date-picker-wrapper">
+                <ion-datetime
+                  presentation="date"
+                  [preferWheel]="true"
+                  [(ngModel)]="payment().date_expired">
+                </ion-datetime>
+              </div>
+            </div>
+          }
+
+        </div>
+      </div>
+
+      <!-- MEMBERSHIP PERIOD -->
+      @if (showMemberships()) {
+        <div class="section-container">
+          <h3 class="section-label-slate">
+            {{ 'membership_period' | translate }}
+          </h3>
+
+          <div class="form-card row-layout">
+
+            <!-- YEAR -->
+            <div class="input-group select-section">
+              <label class="field-label">
+                {{ 'year' | translate }}
+              </label>
+
+              <div class="custom-select-box">
+                <ion-select
+                  interface="popover"
+                  placeholder="{{ 'year' | translate }}"
+                  [value]="year()"
+                  (ionChange)="year.set($event.detail.value)">
+                  @for (item of years(); track item.year) {
+                    <ion-select-option [value]="item.year">
+                      {{ item.year }}
+                    </ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+            <!-- MONTH -->
+            <div class="input-group select-section">
+              <label class="field-label">
+                {{ 'month' | translate }}
+              </label>
+
+              <div class="custom-select-box">
+                <ion-select
+                  interface="popover"
+                  placeholder="{{ 'month' | translate }}"
+                  [value]="month()"
+                  (ionChange)="month.set($event.detail.value)">
+                  @for (item of months(); track item) {
+                    <ion-select-option [value]="item">
+                      {{ ('month_' + item) | translate }}
+                    </ion-select-option>
+                  }
+                </ion-select>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      }
+
+      <!-- PAYER INFO -->
+      <div class="section-container">
+        <h3 class="section-label-slate">
+          {{ 'payer_info' | translate }}
+        </h3>
+
+        <div class="form-card flex-col">
+
+          <!-- PAYMENT METHOD -->
+          <div class="input-group">
+            <label class="field-label">
+              {{ 'payment_method' | translate }}*
+            </label>
+
+            <div class="custom-select-box">
+              <ion-select
+                interface="popover"
+                placeholder="{{ 'payment_method' | translate }}"
+                [(ngModel)]="payment().payment_method">
+                @for (item of paymentMethods(); track item) {
+                  <ion-select-option [value]="item">
+                    {{ ('payment_method_' + item) | translate }}
+                  </ion-select-option>
+                }
+              </ion-select>
+            </div>
+          </div>
+
+          <!-- PAYER NAME -->
+          <div class="input-group ion-margin-top">
+            <label class="field-label">
+              {{ 'payer_name' | translate }}
+            </label>
+
+            <div class="custom-input-box">
+              <ion-input
+                type="text"
+                [(ngModel)]="payment().payer_name">
+              </ion-input>
+            </div>
+          </div>
+
+          <!-- SLIP NUMBER -->
+          <div class="input-group ion-margin-top">
+            <label class="field-label">
+              {{ 'payment_slip_number' | translate }}
+            </label>
+
+            <div class="custom-input-box">
+              <ion-input
+                type="text"
+                [(ngModel)]="payment().payment_slip_number">
+              </ion-input>
+            </div>
+          </div>
+        </div>
+      </div>
+    <ion-item><br></ion-item>
+    </div>
+  }
+
 </ion-content>
 
-<ion-footer class="ion-no-border">
-  <ion-button 
-    expand="full" 
-    size="large" 
-    class="btn animate__animated animate__fadeInUp"
-    (click)="save()" 
-    [disabled]="!isValid() || isSubmitting()">
-    
-    <ion-spinner name="dots" *ngIf="isSubmitting()"></ion-spinner>
-    <span *ngIf="!isSubmitting()">{{ 'save' | translate }}</span>
-    
-  </ion-button>
+<ion-footer class="ion-no-border ion-padding-start ion-padding-end">
+  <ion-button
+    expand="block"
+    class="save-btn mt-6"
+      (click)="save()"
+      [disabled]="clicked()">
+
+      @if (clicked()) {
+        <ion-spinner
+          name="crescent"
+          slot="start">
+        </ion-spinner>
+      }
+
+      {{ 'save' | translate }}
+    </ion-button>
 </ion-footer>

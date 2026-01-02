@@ -1,0 +1,59 @@
+ion-content {
+  --background: #f4f7f6;
+}.header-grid {
+   background: #fff;
+   border-bottom: 2px solid #ddd;
+   ion-col { font-size: 0.75rem; color: #666; }
+ }
+
+.member-row {
+  border-bottom: 1px solid #eee;
+  transition: background 0.3s ease;
+  background: #fff;
+
+  // Boje za ceo red na osnovu današnjeg statusa
+  &.present {
+    background: #e8f5e9; // Nežno zelena
+    border-left: 5px solid var(--ion-color-success);
+  }
+
+  &.not_present {
+    background: #ffebee; // Nežno crvena
+    border-left: 5px solid var(--ion-color-danger);
+  }
+
+  &.none {
+    background: #fff;
+    border-left: 5px solid transparent;
+  }
+}
+
+.transparent-item {
+  --background: transparent;
+  --padding-start: 8px;
+  ion-label { font-weight: 500; }
+}
+
+ion-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 2px;
+  &:first-child { justify-content: flex-start; }
+}
+
+.footer-grid {
+  background: #fafafa;
+  border-top: 2px solid #ddd;
+  margin-top: 10px;
+}
+
+// Da sliding opcije izgledaju bolje
+ion-item-option {
+  ion-icon { font-size: 1.8rem; }
+}
+
+.small-text {
+  font-size: 0.85rem;
+  color: #333;
+}

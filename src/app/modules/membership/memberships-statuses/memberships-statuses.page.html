@@ -1,13 +1,122 @@
-<ion-header [translucent]="true">
+<ion-header class="safe-area-top">
   <ion-toolbar>
-    <ion-title>memberships-statuses</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'membership_statuses' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">memberships-statuses</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="bg_color">
+  @if (show()) {
+    <div class="main-container">
+      <!-- Search Section -->
+      <ion-searchbar
+        show-clear-button="always"
+        [placeholder]="'search_member' | translate"
+        [debounce]="200"
+        (ionInput)="handleSearch($event)">
+      </ion-searchbar>
+
+      @if (showList()) {
+        <ion-list class="search-results">
+          @for (member of results(); track member.member_id) {
+            <ion-item button (click)="selectMember(member)">
+              <ion-label>{{ member.name }}</ion-label>
+            </ion-item>
+          }        </ion-list>
+      }
+
+      <h4>{{ memberName() }}</h4>
+
+      <!-- Member Specific Details -->
+      @if (showMemberships()) {
+        @if (permissions().includes('paid_memberships')) {
+          <div class="membership-admin-section">
+            <h4 class="centered-title">{{ 'paid_memberships' | translate }}</h4>
+
+            <ion-item lines="none" class="year-selector">
+              <ion-label position="stacked">{{ 'year' | translate }}</ion-label>              <ion-select [value]="year()" (ionChange)="year.set($event.detail.value); changedYear()">
+              @for (item of years(); track item.year) {
+                <ion-select-option [value]="item.year">{{ item.year }}</ion-select-option>
+              }              </ion-select>
+            </ion-item>
+
+            <ion-list lines="none">              @for (item of paidMemberships(); track item.month) {
+              <ion-item class="animate__animated animate__fadeInUp status-item">
+                <div class="item_inner">
+                  <h3 class="status-header">
+                    {{ 'month_' + item.month | translate }}
+                    <span [class]="item.status">{{ 'status_' + item.status | translate }}</span>
+                  </h3>
+                  <div class="button-group">
+                    <ion-button class="paid" size="small" (click)="changeStatus(item.month, 'paid')">
+                      <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+                    </ion-button>
+                    <ion-button class="exempt" size="small" (click)="changeStatus(item.month, 'exempt')">
+                      <ion-icon name="notifications-off-outline"></ion-icon>
+                    </ion-button>
+                    <ion-button class="unpaid" size="small" (click)="changeStatus(item.month, 'unpaid')">
+                      <ion-icon name="remove-circle-outline"></ion-icon>
+                    </ion-button>
+                  </div>                  </div>
+              </ion-item>
+            }
+            </ion-list>
+            <hr>
+          </div>
+        }
+
+        <!-- Payment History -->
+        <h4 class="centered-title">{{ 'payments' | translate }}</h4>
+        <ion-list>
+          @for (item of membershipPayments(); track $index) {            <ion-card class="payment-card">
+            <ion-item lines="full">
+              <ion-label>
+                <p><strong>{{ 'date' | translate }}:</strong> {{ item.date }}</p>
+                <p><strong>{{ 'payment_method' | translate }}:</strong> {{ 'payment_method_' + item.payment_method | translate }}</p>
+                <p><strong>{{ 'amount' | translate }}:</strong> {{ item.amount }} {{ item.currency?.iso_code }}</p>
+                @if (item.name) { <p><strong>{{ 'description' | translate }}:</strong> {{ item.name }}</p> }
+                @if (item.payer_name) { <p><strong>{{ 'payer_name' | translate }}:</strong> {{ item.payer_name }}</p> }
+              </ion-label>
+            </ion-item>
+          </ion-card>
+          }
+        </ion-list>
+      }
+
+      <!-- Default View (Last 3 Months Summary) -->
+      @if (!showMemberships() && paidMemberships().length > 0) {
+        <div class="summary-view">
+          @for (item of paidMemberships(); track $index) {
+            <ion-card class="member_details">
+              <ion-item lines="none">
+                <ion-label>
+                  <h2>{{ item.first_name }} {{ item.last_name }}</h2>
+                  <p>{{ 'membership_number' | translate }}: {{ item.membership_number }}</p>
+                </ion-label>
+              </ion-item>
+              <ion-card-content>
+                <div class="status-badges">
+                  @for (statusItem of item.paidMembershipStatuses; track statusItem.month) {
+                    <ion-badge [color]="statusItem.status" class="ion-margin-end">
+                      {{ 'month_' + statusItem.month | translate }}
+                    </ion-badge>
+                  }
+                </div>
+              </ion-card-content>
+            </ion-card>
+          }        </div>
+      }
+    </div>
+
+    <!-- FAB Button -->
+    @if (memberId()) {
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)="addPayment()" class="animate__animated animate__zoomIn">
+          <ion-icon name="add-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    }
+  }
 </ion-content>

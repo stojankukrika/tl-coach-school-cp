@@ -1,0 +1,64 @@
+.header-row {
+  background: var(--ion-color-light);
+  padding: 10px 5px;
+  font-size: 0.8rem;
+  text-transform: uppercase;  border-bottom: 1px solid #ddd;
+}
+
+.member-row {
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+  align-items: center;
+}
+
+.member-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 2px 0;
+}
+
+.membership-num, .birth-date {
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.status-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  ion-badge {
+    width: 100%;
+    padding: 4px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+}
+
+.button-group {
+  display: flex;
+  gap: 2px;
+}
+
+ion-button {
+  --padding-start: 4px;
+  --padding-end: 4px;
+  margin: 0;
+
+  &.paid { --background: #036B4E; }
+  &.exempt { --background: #6C2BD9; }
+  &.unpaid { --background: #E02423; }
+}
+
+ion-input {
+  --background: #f0f0f0;
+  --color: #000;
+  --padding-start: 8px;
+  --border-radius: 4px;  font-size: 0.9rem;
+  height: 38px;
+}
+
+.ion-color-paid { background: #036B4E; color: white; }
+.ion-color-unpaid { background: #E02423; color: white; }
+.ion-color-exempt { background: #6C2BD9; color: white; }

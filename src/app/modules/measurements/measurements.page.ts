@@ -1,9 +1,11 @@
-import { Component, OnInit, inject, signal, WritableSignal, computed } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { AuthConstants } from 'src/app/core/config/auth-constants';
-import { EntryService } from 'src/app/core/services/entry.service';
-import { StorageService } from 'src/app/core/services/storage.service';
-import { ToastService } from 'src/app/core/services/toast.service';
+import {Component, inject, signal, WritableSignal} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {NavController} from '@ionic/angular';
+import {AuthConstants} from 'src/app/core/config/auth-constants';
+import {EntryService} from 'src/app/core/services/entry.service';
+import {from} from 'rxjs';
+import {concatMap} from 'rxjs/operators';
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-measurements',
@@ -11,137 +13,284 @@ import { ToastService } from 'src/app/core/services/toast.service';
   styleUrls: ['./measurements.page.scss'],
   standalone: false,
 })
-export class MeasurementsPage implements OnInit {
-  // --- Services ---
-  private activatedRoute = inject(ActivatedRoute);
+export class MeasurementsPage {
+  // Signals za sve vrijednosti
+  group: WritableSignal<any> = signal<any>(null);
+  show: WritableSignal<boolean> = signal<boolean>(false);
+  hideMe: WritableSignal<{ [key: string]: boolean }> = signal<{ [key: string]: boolean }>({});
+  isToastMeasurementOpen: WritableSignal<boolean> = signal<boolean>(false);
+  type: WritableSignal<any> = signal<any>(null);
+  types: WritableSignal<any[]> = signal<any[]>([]);
+  members: WritableSignal<any[]> = signal<any[]>([]);
+  datetime: WritableSignal<any> = signal<any>(null);
+  date: WritableSignal<any> = signal<any>(null);
+  key: WritableSignal<any> = signal<any>(null);
+  event: WritableSignal<any> = signal<any>(null);
+  categories: WritableSignal<any[]> = signal<any[]>([]);
+  isEvent: WritableSignal<boolean> = signal<boolean>(false);
+  notPresentMembers: WritableSignal<any[]> = signal<any[]>([]);
+  lateMembers: WritableSignal<any[]> = signal<any[]>([]);
+  sickMembers: WritableSignal<any[]> = signal<any[]>([]);
+  presentMembers: WritableSignal<any[]> = signal<any[]>([]);
+  teamAppSettings: WritableSignal<any> = signal<any>(null);
+  showAllPresenceStatuses: WritableSignal<boolean> = signal<boolean>(false);
+  permissions: WritableSignal<any> = signal<any>(null);
+  showMeasurements: WritableSignal<boolean> = signal<boolean>(false);
+  isToastNoteOpen: WritableSignal<boolean> = signal<boolean>(false);
+  showKey: WritableSignal<boolean> = signal<boolean>(false);
+  disabled: WritableSignal<boolean> = signal<boolean>(false);
+  data: WritableSignal<any> = signal<any>({member_id: null, key: null, value: null});
+  measurement_type: WritableSignal<any> = signal<any>(null);
+  selectedCategory: WritableSignal<any> = signal<any>(null);
+  selectedValue: WritableSignal<any> = signal<any>(null);
+  title: WritableSignal<any> = signal<any>(null);
+
+  public activatedRoute = inject(ActivatedRoute);
+  private navCtrl = inject(NavController);
   private entryService = inject(EntryService);
-  private storage = inject(StorageService);
-  private toastService = inject(ToastService);
 
-  // --- Signals & State ---
-  public members: WritableSignal<any[]> = signal([]);
-  public categories: WritableSignal<any[]> = signal([]);
-  public group: WritableSignal<any> = signal(null);
-  
-  // Selection State
-  public selectedCategory: WritableSignal<any> = signal(null);
-  public selectedValue: WritableSignal<any> = signal(null);
-  public datetime: WritableSignal<string | null> = signal(null);
-  public measurementType: WritableSignal<string | null> = signal(null);
-  // UI Flags
-  public isLoading: WritableSignal<boolean> = signal(true);
-  public isEvent: WritableSignal<boolean> = signal(false);
-  public showMeasurements: WritableSignal<boolean> = signal(false);
-  public isToastOpen: WritableSignal<boolean> = signal(false);
+  constructor() {
+  }
 
-  // Computed signal for logic
-  public showKey = computed(() => this.categories().length <= 0);
+  ionViewWillEnter() {
+    this.disabled.set(false);
+    this.teamAppSettings.set(JSON.parse(localStorage.getItem(AuthConstants.APPSETTINGS) || '{}'));
+    this.permissions.set(JSON.parse(localStorage.getItem(AuthConstants.PERMISSIONS) || '[]'));
+    this.showMeasurements.set((this.permissions() != null && this.permissions().includes('measurements')));
 
-  constructor() {}
+    this.showAllPresenceStatuses.set(
+      (!this.teamAppSettings().presence_chart || 'all_values' === this.teamAppSettings().presence_chart)
+    );
+    this.hideMe.set({});
+    this.show.set(false);
+    this.showKey.set(false);
+    this.data.set({member_id: null, key: null, value: null});
+    this.isToastMeasurementOpen.set(false);
+    this.isToastNoteOpen.set(false);
 
-  ngOnInit(): void {}
-
-  async ionViewWillEnter() {
-    this.isLoading.set(true);
-    await this.initSettings();
-    
-    this.activatedRoute.params.subscribe(async (params) => {
+    this.activatedRoute.params.subscribe(params => {
       this.datetime.set(params['time'] ?? null);
-      
       if (params['event'] !== undefined) {
+        this.event.set(params['event']);
         this.isEvent.set(true);
+        this.title.set('event_results');
       } else {
         this.isEvent.set(false);
-        const savedGroup = await this.storage.get(AuthConstants.GROUP);
-        this.group.set(savedGroup);
+        this.title.set('measurement');
+        this.group.set(JSON.parse(localStorage.getItem(AuthConstants.GROUP) || '{}'));
       }
-      await this.loadData();
+      this.loadData();
     });
   }
 
-  private async initSettings() {
-    const permissions = await this.storage.get(AuthConstants.PERMISSIONS);
-    this.showMeasurements.set(permissions?.includes('measurements') || false);
+  public loadData() {
+    this.key.set('');
+    const membersData = JSON.parse(localStorage.getItem(AuthConstants.GROUP_MEMBERS) || '[]');
+    this.members.set(membersData);
+
+    const hideMeData: { [key: string]: boolean } = {};
+    membersData.forEach((element: any) => {
+      hideMeData[element.id] = false;
+    });
+    this.hideMe.set(hideMeData);
+
+    this.categories.set(JSON.parse(localStorage.getItem(AuthConstants.MEASUREMENT_CATEGORIES) || '[]'));
+    this.measurement_type.set(localStorage.getItem(AuthConstants.MEASUREMENT_TYPE));
+    this.selectedCategory.set(null);
+    this.selectedValue.set(null);
+    this.show.set(true);
+    this.loadEntriesForDate();
+    if (this.measurement_type() !== 'individual') {
+      setTimeout(() => this.loadLastCategoryMeasurements(), 200);
+    }
   }
 
-  public async loadData() {
-    const groupMembers = await this.storage.get(AuthConstants.GROUP_MEMBERS);
-    const measurementCats = await this.storage.get(AuthConstants.MEASUREMENT_CATEGORIES);
-    
-    this.members.set(groupMembers || []);
-    this.categories.set(measurementCats || []);
-    this.isLoading.set(false);
+  loadEntriesForDate() {
+    this.showKey.set(this.categories().length <= 0);
   }
 
-  /**
-   * Refactored save logic using RxJS forkJoin or sequential mapping
-   * Updates multiple member entries and clears local values
-   */
-  async saveEntry() {
-    const category = this.selectedCategory();
-    if (!category) return;
+  saveEntry() {
+    this.disabled.set(true);
+    if (this.measurement_type() !== 'individual') {
+      this.loadLastCategoryMeasurements();
+    }
+    const entriesToProcess = this.members()
+      .filter((entry: any) => entry.value != "" && entry.value != null)
+      .map((entry: any) => {
+        const data: any = {
+          member_id: entry.member_id,
+          value: entry.value,
+          date_time: this.datetime(),
+          group_id: null,
+          event_id: null,
+          categories: this.categories(),
+          category: this.selectedCategory(),
+          category_id: this.selectedCategory()?.id,
+          category_value: this.selectedValue(),
+          key: null,
+        };
 
-    this.isLoading.set(true);
-    const currentMembers = this.members();
+        if (this.event() !== null) {
+          data.event_id = this.event();
+        } else {
+          data.group_id = this.group().id;
+        }
+        data.key = this.data().key || '-';
 
-    // Preparation of shared data
-    const baseData = {
-      date_time: this.datetime(),
-      category_id: category.id,
-      category_value: this.selectedValue(),
-      group_id: this.group()?.id
-    };
+        return data;
+      });
 
-    // Note: In a real app, a single bulk API endpoint is better.
-    // Here we maintain your logic of deleting then inserting.
-    this.entryService.deleteLastMeasurements(baseData).subscribe({
-      next: () => {
-        currentMembers.forEach((member) => {
-          if (member.value) {
-            const measurementData = {
-              ...baseData,
-              member_id: member.member_id,
-              value: member.value,
-              categories: this.categories(),
-              category: category,
-            };
-            
-            this.entryService.measurement(measurementData).subscribe(() => {
-              member.value = null; // Clear local signal value
-            });
-          }
-        });
-        this.isToastOpen.set(true);
-        this.isLoading.set(false);
+    if (entriesToProcess.length === 0) {
+      this.setMeasurementOpen(true);
+
+      if (this.measurement_type() === 'individual') {
         this.changeCategoryValue();
-      },
-      error: () => this.isLoading.set(false)
-    });
+      } else {
+        this.loadLastCategoryMeasurements();
+      }
+      return;
+    }
+
+    from(entriesToProcess)
+      .pipe(
+        concatMap((data) => {
+          if (this.measurement_type() === 'individual') {
+            return this.entryService.deleteLastMeasurements(data).pipe(
+              concatMap(() => this.entryService.measurement(data))
+            );
+          } else {
+            return this.entryService.measurement(data);
+          }
+        })
+      )
+      .subscribe({
+        next: () => {
+        },
+        complete: () => {
+          this.setMeasurementOpen(true);
+          if (this.measurement_type() === 'individual') {
+            this.changeCategoryValue();
+          } else {
+            this.loadLastCategoryMeasurements();
+          }
+          this.disabled.set(false);
+        },
+        error: (err) => {
+          console.error('Greška pri slanju mjerenja:', err);
+          this.setMeasurementOpen(true);
+
+          if (this.measurement_type() === 'individual') {
+            this.changeCategoryValue();
+          } else {
+            this.loadLastCategoryMeasurements();
+          }
+          this.disabled.set(false);
+        },
+      });
   }
 
-  /**
-   * Fetches latest values when category selection changes
-   */
-  changeCategoryValue() {
-    const category = this.selectedCategory();
-    if (!category) return;
+  setMeasurementOpen(isOpen: boolean) {
+    this.isToastMeasurementOpen.set(isOpen);
+  }
 
-    const query = {
+  setNoteOpen(isOpen: boolean) {
+    this.isToastNoteOpen.set(isOpen);
+  }
+
+  changeCategoryValue() {
+    const data = {
       date_time: this.datetime(),
-      category_id: category.id,
+      category_id: this.selectedCategory()?.id,
       category_value: this.selectedValue(),
       group_id: this.group()?.id
     };
-
-    this.entryService.lastMeasurements(query).subscribe((response: any) => {
+    this.entryService.lastMeasurements(data).subscribe((response: any) => {
       const measurements = response.measurements || [];
-      const measurementMap = new Map(measurements.map((item: any) => [item.member_id, item.value]));
+      const measurementMap = new Map(
+        measurements.map((item: any) => [item.member_id, item.value])
+      );
 
-      // Update members signal immutably
-      this.members.update(prev => prev.map(member => ({
-        ...member,
-        value: measurementMap.get(member.member_id) ?? null
-      })));
+      this.members.update(members =>
+        members.map((member: any) => {
+          const match = measurementMap.get(member.member_id);
+          return {
+            ...member,
+            value: match ? match : null,
+          };
+        })
+      );
     });
+  }
+
+  updateDataKey(key: string | null | undefined) {
+    if (key !== null && key !== undefined) {
+      this.data.update(current => ({...current, key}));
+    }
+  }
+
+  updateSelectedCategory(category: any) {
+    this.selectedCategory.set(category);
+  }
+
+  updateSelectedValue(value: any) {
+    this.selectedValue.set(value);
+    this.changeCategoryValue();
+  }
+
+  updateMemberValue(memberId: string, value: string | null | undefined) {
+    if (value !== null && value !== undefined) {
+      this.members.update(members =>
+        members.map((member: any) =>
+          member.member_id === memberId
+            ? {...member, value}
+            : member
+        )
+      );
+    }
+  }
+
+  loadLastCategoryMeasurements() {
+    if (this.measurement_type() === 'individual') {
+      const activeCategory = this.categories().find(cat => cat.value) || this.categories()[0];
+      if (!activeCategory) {
+        return;
+      }
+      const data = {
+        date_time: this.datetime(),
+        category_id: activeCategory.id,
+        category_value: activeCategory.value,
+        group_id: this.group()?.id
+      };
+
+      this.entryService.lastMeasurements(data).subscribe((response: any) => {
+        const measurements = response.measurements || [];
+        const measurementMap = new Map(
+          measurements.map((item: any) => [item.member_id, item.value])
+        );
+
+        this.members.update(members =>
+          members.map((member: any) => {
+            const match = measurementMap.get(member.member_id);
+            return {
+              ...member,
+              value: match ? match : null,
+            };
+          })
+        );
+      });
+    }
+  }
+
+  updateCategoryValue(categoryId: string, value: string | null | undefined) {
+    if (value !== null && value !== undefined) {
+      this.categories.update(categories =>
+        categories.map((category: any) =>
+          category.id === categoryId
+            ? {...category, value}
+            : category
+        )
+      );
+      setTimeout(() => this.loadLastCategoryMeasurements(), 100);
+    }
   }
 }

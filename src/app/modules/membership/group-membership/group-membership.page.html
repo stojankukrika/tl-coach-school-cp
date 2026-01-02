@@ -1,13 +1,98 @@
-<ion-header [translucent]="true">
+<ion-header class="safe-area-top">
   <ion-toolbar>
-    <ion-title>group-membership</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>    <ion-title>{{ 'memberships' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">group-membership</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="bg_color">
+  @if (show()) {
+    <ion-list>
+      <!-- Filteri -->
+      @if (years().length > 0) {
+        <ion-item lines="full">
+          <ion-label >{{ 'year' | translate }}</ion-label>
+          <ion-select [value]="selectedYear()" (ionChange)="selectedYear.set($event.detail.value); selectedMonthChange()">
+            @for (item of years(); track item.year) {
+              <ion-select-option [value]="item.year.toString()">{{ item.year }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      }
+
+      <ion-item lines="full">
+        <ion-label >{{ 'select_month' | translate }}</ion-label>
+        <ion-select [value]="selectedMonth()" (ionChange)="selectedMonth.set($event.detail.value); selectedMonthChange()">          @for (item of months(); track item) {
+          <ion-select-option [value]="item">
+            {{ "month_" + item | translate }}
+          </ion-select-option>
+        }        </ion-select>
+      </ion-item>
+
+      <!-- Tabela Članova -->
+      <ion-grid class="ion-no-padding">
+        <ion-row class="header-row">
+          <ion-col size="4"><strong>{{ 'members' | translate }}</strong></ion-col>
+          <ion-col size="5"><strong>{{ 'status' | translate }}</strong></ion-col>
+          <ion-col size="3"><strong>{{ 'amount' | translate }}</strong></ion-col>
+        </ion-row>
+
+        @for (item of members(); track item.member_id) {
+          <ion-row class="member-row">
+            <ion-col size="4">
+              <ion-label>
+                <p class="membership-num">{{ item.membership_number }}</p>
+                <h3 class="member-name">{{ item.first_name }} {{ item.last_name }}</h3>
+                <p class="birth-date">{{ item.birth_date }}</p>
+              </ion-label>
+            </ion-col>
+
+            <ion-col size="5">
+              <div class="status-container">
+                <ion-badge [class]="'ion-color-' + item.membership_status">
+                  {{ 'status_' + item.membership_status | translate }}
+                </ion-badge>
+
+                <div class="button-group">
+                  <ion-button class="paid" (click)="changeStatus(item, 'paid')" size="small">
+                    <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button class="exempt" (click)="changeStatus(item, 'exempt')" size="small">
+                    <ion-icon name="notifications-off-outline"></ion-icon>
+                  </ion-button>
+                  <ion-button class="unpaid" (click)="changeStatus(item, 'unpaid')" size="small">
+                    <ion-icon name="remove-circle-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+            </ion-col>
+
+            <ion-col size="3">
+              <ion-input
+                type="number"                 placeholder="0"
+                [value]="item.amount"
+                (ionInput)="item.amount = $event.detail.value">
+              </ion-input>
+            </ion-col>
+          </ion-row>
+        }
+      </ion-grid>
+    </ion-list>
+
+    <!-- Toast Obaveštenje -->
+    <ion-toast
+      [isOpen]="isMembershipAmountSavedOpen()"
+      [message]="'membership_amounts_saved' | translate"
+      [duration]="3000"
+      (didDismiss)="setMembershipAmountSavedOpen(false)">
+    </ion-toast>
+
+    <!-- FAB dugme za čuvanje -->
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="animate__animated animate__zoomIn">
+      <ion-fab-button (click)="saveEntry()" color="primary">
+        <ion-icon name="save-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  }
 </ion-content>

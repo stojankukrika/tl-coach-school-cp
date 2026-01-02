@@ -1,0 +1,91 @@
+.ion-color-unpaid {
+  background: #E02423;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: .72rem;
+}
+.ion-color-paid {
+  background: #036B4E;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: .72rem;
+}
+.ion-color-exempt {
+  background: #6C2BD9;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: .72rem;
+}
+
+h4 {
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0 15px !important;
+}
+
+ion-list {
+  background: var(--transparent) !important;
+  margin: 0;
+  padding: 0;
+
+  ion-item {
+    padding: 0;
+    background: var(--transparent);
+    --inner-padding-end: 20px;
+    --inner-padding-start: 8px;
+    --inner-min-height: unset !important;
+    --min-height: unset !important;
+    --highligh-color-focused: var(--transparent) !important;
+
+    .item_inner {
+      width: 100%;
+
+      h3 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        padding-bottom: 8px;
+        color: var(--text-dark);
+
+        .unpaid {
+          color: #E02423;
+          font-weight: 500;
+          font-size: .92rem;
+        }
+
+        .paid {
+          color: #036B4E;
+          font-weight: 500;
+          font-size: .92rem;
+        }
+
+        .exempt {
+          color: #6C2BD9;
+          font-weight: 500;
+          font-size: .92rem;
+        }
+      }
+    }
+  }
+}
+
+
+.unpaid {
+  --background: #E02423 !important;;
+  --color: #ffffff;
+}
+
+.paid {
+  --background: #036B4E !important;;
+  --color: #ffffff;
+}
+
+.exempt {
+  --background: #6C2BD9 !important;;
+  --color: #ffffff;
+}
+.fixed {
+  position: fixed;
+  bottom: 30px;
+  right: 0;
+}

@@ -241,5 +241,8 @@
   "change_password": "Izmjena zaporke",
   "general_info": "Osnovne informacije",
   "measurement_updated_success": "Izmjena mjerenja sačuvano",
-  "measurement_deleted_success": "Мjerenjе obrisano"
+  "measurement_deleted_success": "Мjerenjе obrisano",
+  "payment_details": "Detalji plaćanja",
+  "membership_period": "Period članstva",
+  "payer_info": "Podaci o uplatiocu"
 }

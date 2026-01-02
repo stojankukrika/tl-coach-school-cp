@@ -1,0 +1,137 @@
+<ion-header class="safe-area-top">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'presence' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button id="open-menu">
+        <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+  @if (show()) {
+    <ion-list lines="none">
+      <!-- Header -->
+      <ion-grid [fixed]="true" class="header-grid">
+        <ion-row>
+          <ion-col size="3"><strong>{{ 'full_name' | translate }}</strong></ion-col>
+          @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track i) {
+            <ion-col size="1"><strong>{{ i }}</strong></ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+
+      <!-- Članovi -->
+      @for (member of members(); track member.member_id) {
+        @if (member.status === 'active') {
+          <!-- Dinamička klasa boji ceo red na osnovu današnjeg statusa -->
+          <ion-grid [fixed]="true" [class]="'member-row ' + member.todayStatus">
+            <ion-row>
+              <ion-col size="3">
+                <ion-item-sliding>
+                  <!-- Swipe desno (side="start") -> PRISUTAN -->
+                  <ion-item-options side="start" (ionSwipe)="presence(member, 1)">
+                    <ion-item-option expandable color="success" (click)="presence(member, 1)">
+                      <ion-icon slot="icon-only" name="checkmark-circle"></ion-icon>
+                    </ion-item-option>
+                  </ion-item-options>
+                  <ion-item lines="none" class="transparent-item">
+                    <ion-label (click)="memberDetails(member)" class="small-text">
+                      {{ member.first_name }} {{ member.last_name }}
+                    </ion-label>
+                  </ion-item>
+
+                  <!-- Swipe levo (side="end") -> NIJE PRISUTAN -->
+                  <ion-item-options side="end" (ionSwipe)="presence(member, 4)">
+                    <ion-item-option expandable color="danger" (click)="presence(member, 4)">
+                      <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+                    </ion-item-option>
+                  </ion-item-options>
+                </ion-item-sliding>
+              </ion-col>
+
+              <!-- Male ikonice u tabeli -->
+              @for (status of member.presence; track $index) {
+                <ion-col size="1">
+                  @if (status === 'present') {
+                    <ion-icon name="add-circle" color="success"></ion-icon>
+                  } @else if (status === 'not_present') {
+                    <ion-icon name="remove-circle" color="danger"></ion-icon>
+                  } @else {
+                    <ion-icon name="help-circle-outline" color="medium" style="opacity: 0.3;"></ion-icon>
+                  }
+                </ion-col>
+              }
+            </ion-row>
+          </ion-grid>
+        }
+      }
+
+      <!-- Totals -->
+      <ion-grid [fixed]="true" class="footer-grid">
+        <ion-row>
+          <ion-col size="3"><strong>{{ 'total' | translate }}</strong></ion-col>
+          @for (training of trainingDays(); track training.id) {
+            <ion-col size="1">
+              <strong>{{ totalPresences()[training.id] || 0 }}</strong>
+            </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+
+      <ion-item-divider color="primary" class="ion-margin-top">
+        <ion-label>{{ 'on_hold' | translate }} ({{ onHold() }})</ion-label>
+      </ion-item-divider>
+
+      @for (member of members(); track member.member_id) {
+        @if (member.status === 'on_hold') {
+          <ion-item button (click)="memberDetails(member)">
+            <ion-label>
+              <h2>{{ member.first_name }} {{ member.last_name }}</h2>
+            </ion-label>
+            <ion-icon name="chevron-forward-outline" slot="end" size="small" color="medium"></ion-icon>
+          </ion-item>
+        }
+      }
+    </ion-list>
+  }
+
+  <!-- Popover Meni (isto kao ranije) -->
+  <ion-popover trigger="open-menu" dismiss-on-select="true">
+    <ng-template>
+      <ion-content>
+        <ion-list lines="full">
+          @if (showPayments()) {
+            <ion-item button (click)="membershipStatuses()">
+              <ion-label>{{ 'membership_statuses' | translate }}</ion-label>
+            </ion-item>
+            <ion-item button (click)="memberships()">
+              <ion-label>{{ 'memberships' | translate }}</ion-label>
+            </ion-item>
+          }
+          <ion-item button (click)="measurements()">
+            <ion-label>{{ 'measurement' | translate }}</ion-label>
+          </ion-item>
+          <ion-item button (click)="trainingCalendars()">
+            <ion-label>{{ 'training_calendars' | translate }}</ion-label>
+          </ion-item>
+          <ion-item button (click)="membersPresences()">
+            <ion-label>{{ 'history_presence' | translate }}</ion-label>
+          </ion-item>
+          <ion-item-divider color="light">
+            <ion-label>{{ 'training_plans' | translate }}</ion-label>
+          </ion-item-divider>
+          @for (item of trainingDays(); track item.id; let i = $index) {
+            <ion-item button (click)="trainingPlan(item, i + 1)">
+              <ion-label>{{ 'plan' | translate }} {{ i + 1 }}</ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-popover>
+</ion-content>

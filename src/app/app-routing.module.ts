@@ -139,7 +139,7 @@ const routes: Routes = [
   },
   {
     path: 'table-presence/:id',
-    loadChildren: () => import('./modules/presence-table/presence-table.module').then( m => m.PresenceTablePageModule)
+    loadChildren: () => import('./modules/training/presence-table/presence-table.module').then( m => m.PresenceTablePageModule)
   },
 ];
 
