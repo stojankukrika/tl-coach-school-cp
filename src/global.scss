@@ -41,7 +41,7 @@
 *{
     font-family: "regular";
 }
-html, body { 
+html, body {
   background: var(--ion-color-primary) !important;
  }
 ion-header{
@@ -49,7 +49,7 @@ ion-header{
     --border: none !important;
     box-shadow: none !important;
     --box-shadow: none !important;
-    
+
     ion-toolbar{
     min-height: 60px;
         border-bottom: 1px solid var(--ion-color-light-shade) ;
@@ -81,18 +81,18 @@ ion-datetime {
   --background: var(--card);
   // Use background-rgb for compatibility with Ionic's internal calculations
   --background-rgb: var(--card-rgb); // Assuming a card-rgb is generated, otherwise use a fallback
-  
+
   // The highlight color for the selected date/time in the calendar or wheel
   --wheel-highlight-background: color-mix(in oklch, var(--primary) 20%, transparent); // A light primary tint
-  
+
   // Keep the rounded style for the highlight ring
   --wheel-highlight-border-radius: var(--radius); // Use the theme radius
-  
+
   // The color used for the fade at the top/bottom of the wheel
   --wheel-fade-background-rgb: var(--card-rgb); // Should match the background
-  
+
   // The default text color for wheel items (unselected)
-  --color: var(--foreground); 
+  --color: var(--foreground);
 }
 
 // Targeting unselected items in the wheel for text color
@@ -120,7 +120,7 @@ ion-datetime::part(month-year-button) {
 // Targeting the today button or selected date text color in the calendar view
 ion-datetime::part(calendar-day active),
 ion-datetime::part(calendar-day today) {
-  color: var(--primary); 
+  color: var(--primary);
   // --background-activated is used for the active date's circle background
   --background-activated: var(--primary);
   --color-activated: var(--primary-foreground); // White text on primary background
@@ -206,3 +206,26 @@ ion-popover{
   }
 }
 
+
+// Save Button
+.save-btn {
+  --background: var(--primary);
+  --border-radius: 16px; // rounded-xl
+  height: 56px; // h-14
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-top: 24px; // mt-6
+  box-shadow: 0 4px 10px rgba(var(--ion-color-primary-rgb), 0.2);
+}
+
+
+// Cancel Button
+.cancel-btn {
+  --background: var(--ion-color-danger);
+  --border-radius: 16px; // rounded-xl
+  height: 56px; // h-14
+  font-weight: 600;
+  font-size: 1.05rem;
+  margin-top: 24px; // mt-6
+  box-shadow: 0 4px 10px rgba(var(--ion-color-danger), 0.2);
+}

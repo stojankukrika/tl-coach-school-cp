@@ -1,6 +1,6 @@
-import { Component, OnInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, inject, signal, ViewChild, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { Router } from '@angular/router';
-import { NavController, PopoverController } from '@ionic/angular';
+import { IonItemSliding, NavController, PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthConstants } from 'src/app/core/config/auth-constants';
 import { EntryService } from 'src/app/core/services/entry.service';
@@ -13,6 +13,8 @@ import { StorageService } from 'src/app/core/services/storage.service';
   standalone: false,
 })
 export class PresenceTablePage implements OnInit {
+  @ViewChildren(IonItemSliding) slidingItems!: QueryList<IonItemSliding>;
+
   // --- Services ---
   private router = inject(Router);
   private entryService = inject(EntryService);
@@ -110,9 +112,15 @@ public maxDate = signal<any>(new Date().toISOString());
       date_time: this.dateTime(),
       group_id: member.group_id, // ensure group id is available on member object
     };
-    this.entryService.presence(data).subscribe(() => this.loadEntriesForMonth());
+    this.entryService.presence(data).subscribe({
+      next:()=>{
+        this.closeAllSliders();
+        this.loadEntriesForMonth();
+      }});
   }
-
+ private closeAllSliders() {
+    this.slidingItems.forEach((slidingItem: IonItemSliding) => slidingItem.close());
+  }
   scrollTable(direction: 'left' | 'right') {
     const element = this.tableWrapper.nativeElement;
     const scrollAmount = direction === 'left' ? -200 : 200;

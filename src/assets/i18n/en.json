@@ -234,5 +234,13 @@
   "select_month": "Month",
   "if_membership": "(if membership)",
   "membership_amounts_saved": "Amounts are stored.",
-  "edit_measurement": "Edit measurement"
+  "edit_measurement": "Edit measurement",
+  "unknown": "Unknown",
+  "select_groups": "Select groups",
+  "membership": "Membership",
+  "enrollment_date": "Enrollment date",
+  "change_password": "Change password",
+  "general_info": "General info",
+  "measurement_updated_success": "Measurement updated successfully.",
+  "measurement_deleted_success": "Measurement deleted successfully."
 }

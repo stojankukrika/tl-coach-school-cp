@@ -7,31 +7,40 @@
       <ion-list lines="none">
         <ion-item class="animate__animated animate__fadeInUp" lines="none">
           <ion-icon name="mail-outline"></ion-icon>
-            <ion-input type="email" value="" [(ngModel)]="postData().email"
-                       placeholder="{{'email_address' | translate}}*"></ion-input>
+          <ion-input type="email" autocomplete="off" value="" [(ngModel)]="this.postData().email"
+            placeholder="{{'email_address' | translate}}*"></ion-input>
         </ion-item>
-        <ion-item class="animate__animated animate__fadeInUp ion-margin-bottom" lines="none">
-            <ion-icon name="code-outline"></ion-icon>
-            <ion-input type="password" value="" [(ngModel)]="postData().password"
-                       placeholder="{{'password' | translate}}*"></ion-input>
+        <ion-item lines="none" class="ion-margin-bottom animate__animated animate__fadeInUp">
+          <ion-icon name="lock-closed-outline" class="start-icon">
+          </ion-icon>
+          <ion-input [type]="showPassword() ? 'text' : 'password'" [(ngModel)]="postData().password" autocomplete="off"
+            [placeholder]="'password' | translate">
+            <ion-button slot="end" fill="clear" shape="round" (click)="togglePassword()">
+              <ion-icon EYE slot="icon-only" [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'">
+              </ion-icon>
+            </ion-button>
+          </ion-input>
         </ion-item>
-          <ion-checkbox class="ion-margin-top" mode="ios" slot="start" labelPlacement="end" [(ngModel)]="postData().rememberMe">
-          <ion-label> {{'remember_me' |translate}}</ion-label>
+        <ion-checkbox class="ion-margin-top" mode="ios" slot="start" labelPlacement="end"
+          [(ngModel)]="postData().rememberMe">
+          <ion-label> {{ 'remember_me' |translate }}</ion-label>
 
-          </ion-checkbox>
-          <div class="w100 ion-margin-top">
-                    <ion-button size="large" shape="block" class="main-btn animate__animated animate__fadeInUp"
-                    (click)="continue()" [disabled]="clicked()">
-          <ion-spinner name="dots" *ngIf="clicked()"></ion-spinner>
-         @if (!clicked()){
-           {{'continue' | translate}}
-          }
-        </ion-button>
-          </div>
+        </ion-checkbox>
+        <div class="w100 ion-margin-top">
+          <ion-button size="large" shape="block" class="main-btn animate__animated animate__fadeInUp"
+            (click)="continue()" [disabled]="clicked()">
+            @if (clicked()) {
+            <ion-spinner name="dots"></ion-spinner>
+            }
+            @if (!clicked()) {
+            {{ 'continue' | translate }}
+            }
+          </ion-button>
+        </div>
       </ion-list>
       <div class="w100">
-             <ion-button class="forgot"
-                  (click)="password_reset()">{{'password_reset' | translate}}</ion-button>
+        <ion-button class="forgot" (click)="password_reset()">{{ 'password_reset' | translate }}
+        </ion-button>
       </div>
     </div>
   </div>

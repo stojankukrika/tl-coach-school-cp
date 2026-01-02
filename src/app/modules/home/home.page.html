@@ -1,88 +1,132 @@
-<ion-header class="ion-no-border home">
-  <ion-toolbar color="transparent">
-    <ion-title class="animate__animated animate__fadeInUp">
-      {{ team()?.name }}
+<ion-header class="ion-no-border home-header">
+  <ion-toolbar color="primary">
+
+    @if (teamLogo() && teamAppSettings().show_logo_on_start_parent === 'show') {
+      <img slot="start" [src]="teamLogo()" class="avatar-img" />
+    }
+
+    <ion-title>
+      {{ 'welcome' | translate }}
     </ion-title>
 
     <ion-buttons slot="end">
-      <ion-button id="click-trigger">
-        <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+      <ion-button id="coach-settings-trigger">
+        <ion-icon name="ellipsis-vertical" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="bg_color" [ngStyle]="dynamicStyles()">
+<ion-content
+  class="bg_color"
+  [style.background]="dynamicStyles().background"
+  [style.color]="dynamicStyles().color"
+>
   <div class="menu">
-    <ion-row>
-      <ion-col size="6" class="animate__animated animate__zoomIn" (click)="group(item)" *ngFor="let item of teamGroups()">
-        <div class="menu-box" [style.background-color]="item.color">
-          <div class="menu-text">
-            <h2 [style.color]="item.color" style="filter: invert(0.75);">{{ item.name }}</h2>
-            <h3 [style.color]="item.color" style="filter: invert(1);">
-              {{ 'members_number' | translate }}: {{ item.members_count }}
-            </h3>
-          </div>
-        </div>
-      </ion-col>
-    </ion-row>
-  </div>
+    <ion-list lines="none" class="grid-container">
 
-  <ion-popover trigger="click-trigger" triggerAction="click" #popover>
-    <ng-template>
-      <ion-content class="option_popover">
-        <ion-list lines="none">
-          <ion-item button (click)="popover.dismiss(); navigateTo('notifications')">
-            <ion-icon class="ion-margin-end" name="notifications-outline" slot="start"></ion-icon>
-            <ion-label slot="start">{{ 'notifications' | translate }} ({{ unreadNotifications() }})</ion-label>
-          </ion-item>
-          
-          <ion-item button *ngIf="showCreateMember()" (click)="popover.dismiss(); navigateTo('add-member')">
-            <ion-icon class="ion-margin-end" name="add-outline" slot="start"></ion-icon>
+      @for (item of teamGroups(); track item.id ?? item.name) {
+        <ion-item
+          lines="none"
+          class="team-card animate__animated animate__zoomIn"
+          (click)="group(item)"
+        >
+          <div
+            class="menu-box"
+            [style.backgroundColor]="item.color"
+          >
+            <h2 class="name-text">{{ item.name }}</h2>
+
+            <div class="menu-text">
+              <h3 class="member-count-text">
+                <ion-icon
+                  name="people-outline"
+                  class="card-icon"
+                  slot="start"
+                ></ion-icon>
+                {{ 'members_number' | translate }} : {{ item.members_count }}
+              </h3>
+            </div>
+          </div>
+        </ion-item>
+      }
+
+    </ion-list>
+  </div>
+</ion-content>
+
+<ion-popover
+  trigger="coach-settings-trigger"
+  dismissOnSelect="true"
+  side="bottom"
+  alignment="end"
+>
+  <ng-template>
+    <ion-content>
+      <ion-list lines="none" class="popover-list">
+        <ion-item button (click)="navigate('notifications')">
+          <ion-icon name="notifications-outline" slot="start"></ion-icon>
+          <ion-label>
+            {{ 'notifications' | translate }}
+
+            @if (unreadNotifications() > 0) {
+              <ion-badge color="danger">
+                {{ unreadNotifications() }}
+              </ion-badge>
+            }
+          </ion-label>
+        </ion-item>
+
+        @if (showCreateMember()) {
+          <ion-item button (click)="navigate('add-member')">
+            <ion-icon name="person-add-outline" slot="start"></ion-icon>
             <ion-label>{{ 'create_member' | translate }}</ion-label>
           </ion-item>
+        }
 
-          <ion-item button *ngIf="showCreateMember()" (click)="popover.dismiss(); navigateTo('search-member')">
-            <ion-icon class="ion-margin-end" name="search-outline" slot="start"></ion-icon>
-            <ion-label>{{ 'search_member' | translate }}</ion-label>
-          </ion-item>
+        <ion-item button (click)="navigate('search-member')">
+          <ion-icon class="ion-margin-end" name="search-outline" slot="start"></ion-icon>
+          <ion-label>{{ 'search_member' | translate }}</ion-label>
+        </ion-item>
 
-          <ion-item button (click)="popover.dismiss(); navigateTo('edit-profile')">
-            <ion-icon class="ion-margin-end" name="create-outline" slot="start"></ion-icon>
-            <ion-label>{{ 'edit_profile' | translate }}</ion-label>
-          </ion-item>
+        <ion-item button (click)="navigate('edit-profile')">
+          <ion-icon name="person-circle-outline" slot="start"></ion-icon>
+          <ion-label>{{ 'edit_profile' | translate }}</ion-label>
+        </ion-item>
 
-          <ion-item button *ngIf="teamsCount() > 1" (click)="popover.dismiss(); navigateTo('change-team')">
-            <ion-icon class="ion-margin-end" name="people-outline" slot="start"></ion-icon>
-            <ion-label>{{ 'switch_team' | translate }}</ion-label>
-          </ion-item>
+        <ion-item button (click)="navigate('profile-avatar')">
+          <ion-icon name="image-outline" slot="start"></ion-icon>
+          <ion-label>{{ 'avatar' | translate }}</ion-label>
+        </ion-item>
 
-          <ion-item button (click)="popover.dismiss(); navigateTo('profile-avatar')">
-            <ion-icon class="ion-margin-end" name="image-outline" slot="start"></ion-icon>
-            <ion-label>{{ 'avatar' | translate }}</ion-label>
-          </ion-item>
+        <ion-item button (click)="navigate('change-language')">
+          <ion-icon name="language-outline" slot="start"></ion-icon>
+          <ion-label>{{ 'language' | translate }}</ion-label>
+        </ion-item>
 
-          <ion-item button (click)="popover.dismiss(); navigateTo('change-language')">
-            <ion-icon class="ion-margin-end" name="globe-outline" slot="start"></ion-icon>
-            <ion-label>{{ 'language' | translate }}</ion-label>
-          </ion-item>
+        <ion-item button (click)="shareApp()">
+          <ion-icon name="share-outline" slot="start"></ion-icon>
+          <ion-label>{{ 'share_app' | translate }}</ion-label>
+        </ion-item>
 
-          <ion-item button (click)="popover.dismiss(); navigateTo('contact-us')">
-            <ion-icon class="ion-margin-end" name="chatbubbles-outline" slot="start"></ion-icon>
-            <ion-label>{{ 'support' | translate }}</ion-label>
-          </ion-item>
+        <ion-item
+          button
+          lines="none"
+          class="logout-item"
+          (click)="logout()"
+        >
+          <ion-icon
+            name="log-out-outline"
+            slot="start"
+            color="danger"
+          ></ion-icon>
+          <ion-label color="danger">
+            {{ 'logout' | translate }}
+          </ion-label>
+        </ion-item>
 
-          <ion-item button (click)="popover.dismiss(); shareApp()">
-            <ion-icon class="ion-margin-end" name="share-outline" slot="start"></ion-icon>
-            <ion-label>{{ 'share_app' | translate }}</ion-label>
-          </ion-item>
-          
-          <ion-item button (click)="popover.dismiss(); logout()" lines="none">
-            <ion-icon class="ion-margin-end" name="log-out-outline" slot="start"></ion-icon>
-            <ion-label color="danger">{{ 'logout' | translate }}</ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-content>
-    </ng-template>
-  </ion-popover>
-</ion-content>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-popover>

@@ -233,5 +233,11 @@
   "select_month": "Месец",
   "if_membership": "(ако је чаланарина)",
   "membership_amounts_saved": "Иѕноси уплата су додани.",
-  "edit_measurement": "Измена мерења"
+  "edit_measurement": "Измена мерења",
+  "unknown": "Непознато",
+  "select_groups": "Изабери групе",
+  "change_password": "Измена лозинке",
+  "general_info": "Основне информације",
+  "measurement_updated_success": "Измена мерења сачувано",
+  "measurement_deleted_success": "Мерење обрисано"
 }

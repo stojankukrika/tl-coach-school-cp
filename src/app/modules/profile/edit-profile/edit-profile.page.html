@@ -1,79 +1,157 @@
-<ion-header class="safe-area-top ion-no-border">
+<ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button text="" icon="chevron-back-outline" defaultHref="/home"></ion-back-button>
+      <ion-back-button
+        text=""
+        icon="chevron-back-outline"
+        defaultHref="/home">
+      </ion-back-button>
     </ion-buttons>
-    <ion-title>{{ 'edit_profile' | translate }}</ion-title>
+    <ion-title>
+      {{ 'edit_profile' | translate }}
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="bg_color">
-  <ng-container *ngIf="showDetails(); else skeletonContent">
+
+  @if (showDetails()) {
+
     <div class="content-wrapper animate__animated animate__fadeIn">
       <div class="form-container">
 
         <div class="form-group">
-          <label class="input-label">{{ 'email_address' | translate }}<span class="required">*</span></label>
+          <label class="input-label">
+            {{ 'email_address' | translate }}
+            <span class="required">*</span>
+          </label>
           <div class="custom-input-wrapper">
-            <ion-input type="email" [ngModel]="user().email" (ngModelChange)="updateUserField('email', $event)"></ion-input>
+            <ion-input
+              type="email"
+              [ngModel]="user().email"
+              (ngModelChange)="updateUserField('email', $event)">
+            </ion-input>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="input-label">{{ 'first_name' | translate }}<span class="required">*</span></label>
+          <label class="input-label">
+            {{ 'first_name' | translate }}
+            <span class="required">*</span>
+          </label>
           <div class="custom-input-wrapper">
-            <ion-input type="text" [ngModel]="user().first_name" (ngModelChange)="updateUserField('first_name', $event)"></ion-input>
+            <ion-input
+              type="text"
+              [ngModel]="user().first_name"
+              (ngModelChange)="updateUserField('first_name', $event)">
+            </ion-input>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="input-label">{{ 'last_name' | translate }}<span class="required">*</span></label>
+          <label class="input-label">
+            {{ 'last_name' | translate }}
+            <span class="required">*</span>
+          </label>
           <div class="custom-input-wrapper">
-            <ion-input type="text" [ngModel]="user().last_name" (ngModelChange)="updateUserField('last_name', $event)"></ion-input>
+            <ion-input
+              type="text"
+              [ngModel]="user().last_name"
+              (ngModelChange)="updateUserField('last_name', $event)">
+            </ion-input>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="input-label">{{ 'mobile_phone' | translate }}</label>
+          <label class="input-label">
+            {{ 'mobile_phone' | translate }}
+          </label>
           <div class="custom-input-wrapper phone-input">
-            <span class="prefix" *ngIf="user().mobile_phone_prefix">({{user().mobile_phone_prefix}})</span>
-            <ion-input type="tel" [ngModel]="user().mobile_phone" (ngModelChange)="updateUserField('mobile_phone', $event)"></ion-input>
+
+            @if (user().mobile_phone_prefix) {
+              <span class="prefix">
+                ({{ user().mobile_phone_prefix }})
+              </span>
+            }
+
+            <ion-input
+              type="number"
+              [ngModel]="user().mobile_phone"
+              (ngModelChange)="updateUserField('mobile_phone', $event)">
+            </ion-input>
           </div>
         </div>
 
-        <div class="section-divider">{{ 'change_password' | translate }}</div>
+        <div class="section-divider">
+          {{ 'change_password' | translate }}
+        </div>
 
         <div class="form-group">
-          <label class="input-label">{{ 'new_password' | translate }}</label>
+          <label class="input-label">
+            {{ 'new_password' | translate }}
+          </label>
           <div class="custom-input-wrapper">
-            <ion-input type="password" [ngModel]="user().new_password" (ngModelChange)="updateUserField('new_password', $event)"></ion-input>
+            <ion-input
+              type="password"
+              [ngModel]="user().new_password"
+              (ngModelChange)="updateUserField('new_password', $event)">
+            </ion-input>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="input-label">{{ 'new_password_again' | translate }}</label>
+          <label class="input-label">
+            {{ 'new_password_again' | translate }}
+          </label>
           <div class="custom-input-wrapper">
-            <ion-input type="password" [ngModel]="user().new_password_again" (ngModelChange)="updateUserField('new_password_again', $event)"></ion-input>
+            <ion-input
+              type="password"
+              [ngModel]="user().new_password_again"
+              (ngModelChange)="updateUserField('new_password_again', $event)">
+            </ion-input>
           </div>
         </div>
+        <ion-item></ion-item>
 
       </div>
     </div>
-  </ng-container>
+
+  } @else {
+
+    <div class="content-wrapper">
+
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div class="form-group">
+          <ion-skeleton-text
+            animated
+            style="width: 40%; height: 16px; margin-bottom: 8px;">
+          </ion-skeleton-text>
+
+          <ion-skeleton-text
+            animated
+            style="width: 100%; height: 52px; border-radius: 12px;">
+          </ion-skeleton-text>
+        </div>
+      }
+
+    </div>
+
+  }
+
 </ion-content>
 
-<ng-template #skeletonContent>
-  <div class="content-wrapper">
-    <div class="form-group" *ngFor="let i of [1,2,3,4,5]">
-      <ion-skeleton-text animated style="width: 40%; height: 16px; margin-bottom: 8px;"></ion-skeleton-text>
-      <ion-skeleton-text animated style="width: 100%; height: 52px; border-radius: 12px;"></ion-skeleton-text>
-    </div>
-  </div>
-</ng-template>
-
 <ion-footer class="ion-no-border ion-padding-start ion-padding-end">
-  <ion-button size="large" expand="block" shape="round" class="btn-save" (click)="save()" [disabled]="clicked()">
-    <ion-spinner name="crescent" *ngIf="clicked()" slot="start"></ion-spinner>
+  <ion-button
+    expand="block"
+    class="save-btn mt-6"
+    (click)="save()"
+    [disabled]="clicked()">
+
+    @if (clicked()) {
+      <ion-spinner name="crescent" slot="start"></ion-spinner>
+    }
+
     {{ 'save' | translate }}
+
   </ion-button>
 </ion-footer>

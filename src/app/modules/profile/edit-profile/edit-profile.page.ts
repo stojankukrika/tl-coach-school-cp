@@ -3,7 +3,6 @@ import { NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthConstants } from 'src/app/core/config/auth-constants';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { StorageService } from 'src/app/core/services/storage.service'; // Added
 import { ToastService } from 'src/app/core/services/toast.service';
 
 @Component({
@@ -14,12 +13,11 @@ import { ToastService } from 'src/app/core/services/toast.service';
 })
 export class EditProfilePage implements OnInit {
 
-  // --- Dependency Injection ---
+  // --- Dependency Injection using `inject` ---
   public authService = inject(AuthService);
   public translate = inject(TranslateService);
   private navCtrl = inject(NavController);
   public toastService = inject(ToastService);
-  private storage = inject(StorageService); // Injected StorageService
 
   // --- State as Writable Signals ---
   showDetails: WritableSignal<boolean> = signal(false);
@@ -27,6 +25,8 @@ export class EditProfilePage implements OnInit {
   clicked: WritableSignal<boolean> = signal(false);
 
   // --- Computed Signals ---
+  
+  // Determines if all required input fields have been filled
   isInputValid = computed(() => {
     const u = this.user();
     if (!u) return false;
@@ -42,20 +42,29 @@ export class EditProfilePage implements OnInit {
     );
   });
 
-  constructor() {}
+  // --- Constructor ---
+  constructor() {
+    // Dependencies are handled by inject()
+  }
 
   // --- Lifecycle Hooks ---
-  async ngOnInit() {
-    // Refactored to use async StorageService
-    const userData = await this.storage.get(AuthConstants.AUTH);
-    if (userData) {
-      this.user.set(userData);
+  ngOnInit() {
+    // Load user data from local storage
+    const userString = localStorage.getItem(AuthConstants.AUTH);
+    if (userString) {
+      this.user.set(JSON.parse(userString) as any);
     }
     this.showDetails.set(true);
   }
 
   // --- Public Methods ---
 
+  /**
+   * Helper function for manual two-way binding with signals.
+   * Updates a specific field in the user signal.
+   * @param key The key of the UserData property to update.
+   * @param value The new value.
+   */
   updateUserField<K extends keyof any>(key: K, value: any[K]): void {
     this.user.update(current => ({
       ...current!,
@@ -69,6 +78,7 @@ export class EditProfilePage implements OnInit {
       
       const payload = this.user();
 
+      // Ensure payload is not null before sending
       if (!payload) {
          this.clicked.set(false);
          this.toastService.presentToast(this.translate.instant('error_loading_user'));
@@ -76,16 +86,15 @@ export class EditProfilePage implements OnInit {
       }
       
       this.authService.profile(payload).subscribe({
-        next: async (res: any) => {
-          // Refactored to async storage.set
-          // StorageService handles JSON.stringify automatically
-          await this.storage.set(AuthConstants.AUTH, res.user);
-          
+        next: (res: any) => {
+          // Update local storage with new user data
+          localStorage.setItem(AuthConstants.AUTH, JSON.stringify(res.user));
           this.clicked.set(false);
-          this.navCtrl.pop(); 
+          this.navCtrl.pop(); // Navigate back
         },
         error: (data: any) => {
           this.clicked.set(false);
+          // Assuming data.error.message contains the error text
           this.toastService.presentToast(this.translate.instant(data?.error?.message || 'save_error'));
         }
       });

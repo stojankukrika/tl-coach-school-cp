@@ -1,140 +1,286 @@
-<ion-header class="safe-area-top ion-no-border">
+<ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+      <ion-back-button
+        text=""
+        icon="chevron-back-outline"
+        defaultHref="home">
+      </ion-back-button>
     </ion-buttons>
+
     <ion-title>{{ 'add_member' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="bg_color">
-  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-  </div>
+@if (show()) {
+  <ion-content class="bg_color ion-padding">
+    <ion-list lines="none">
 
-  <div class="content-wrapper animate__animated animate__fadeIn" *ngIf="!isLoading()">
-    <div class="form-container">
-
-      <div class="form-group">
-        <label class="input-label">{{ 'first_name' | translate }}<span class="required">*</span></label>
-        <div class="custom-input-wrapper">
-          <ion-input 
-            type="text" 
+      <!-- First name -->
+      <div class="list-item">
+        <ion-label>{{ 'first_name' | translate }}*</ion-label>
+        <ion-item>
+          <ion-input
+            type="text"
             [value]="member().first_name"
-            (ionInput)="updateMemberField('first_name', $event.detail.value)">
+            (ionInput)="setMember('first_name', $event.detail.value)">
           </ion-input>
-        </div>
+        </ion-item>
       </div>
 
-      <div class="form-group">
-        <label class="input-label">{{ 'last_name' | translate }}<span class="required">*</span></label>
-        <div class="custom-input-wrapper">
-          <ion-input 
-            type="text" 
+      <!-- Last name -->
+      <div class="list-item">
+        <ion-label>{{ 'last_name' | translate }}*</ion-label>
+        <ion-item>
+          <ion-input
+            type="text"
             [value]="member().last_name"
-            (ionInput)="updateMemberField('last_name', $event.detail.value)">
+            (ionInput)="setMember('last_name', $event.detail.value)">
           </ion-input>
-        </div>
+        </ion-item>
       </div>
 
-      <div class="form-group">
-        <label class="input-label">{{ 'birth_date' | translate }}</label>
-        <div class="custom-input-wrapper date-input-wrapper">
-          <ion-datetime-button datetime="birthdate"></ion-datetime-button>
-        </div>
+      <!-- Birth date -->
+      <div class="list-item">
+        <ion-label class="unmargined">
+          {{ 'birth_date' | translate }}
+          <small>
+            <ion-checkbox (ionBlur)="resetBirthDate()"
+              [(ngModel)]="member().birth_date_show">
+              {{ 'unknown' | translate }}
+            </ion-checkbox>
+          </small>
+        </ion-label><br>
+
+        @if (!member().birth_date_show) {
+          <ion-item class="fit-content">
+            <ion-datetime
+              presentation="date"
+              [preferWheel]="true"
+              [max]="maxDate()"
+              [value]="member().birth_date"
+              (ionChange)="setMember('birth_date', $event.detail.value)">
+            </ion-datetime>
+          </ion-item>
+        }
       </div>
 
-      <div class="form-group">
-        <label class="input-label">{{ 'groups' | translate }}<span class="required">*</span></label>
-        <div class="custom-input-wrapper">
-          <ion-select 
-            multiple="true" 
-            interface="popover"
+      <!-- Groups -->
+      <div class="list-item">
+        <ion-label>{{ 'groups' | translate }}*</ion-label>
+        <ion-item>
+          <ion-select
+            [multiple]="true"
             [value]="member().group_ids"
-            (ionChange)="updateMemberField('group_ids', $event.detail.value)"
-            toggleIcon="chevron-down-outline"
-            expandedIcon="chevron-up-outline">
-            <ion-select-option *ngFor="let item of groups()" [value]="item.id">
-              {{ item.name }}
-            </ion-select-option>
+            placeholder="{{ 'select_groups' | translate }}"
+            (ionChange)="setMember('group_ids', $event.detail.value); changeGroup()">
+
+            @for (item of groups(); track item.id) {
+              <ion-select-option [value]="item.id">
+                {{ item.name }}
+              </ion-select-option>
+            }
           </ion-select>
-        </div>
+        </ion-item>
       </div>
 
-      <div class="section-divider">{{ 'emergency_contact' | translate }}</div>
-
-      <div class="form-group">
-        <label class="input-label">{{ 'urgent_contact' | translate }}</label>
-        <div class="custom-input-wrapper">
-          <ion-input 
+      <!-- Urgent contact -->
+      <div class="list-item">
+        <ion-label>{{ 'urgent_contact' | translate }}</ion-label>
+        <ion-item>
+          <ion-input
+            type="text"
             [value]="member().urgent_contact"
-            (ionInput)="updateMemberField('urgent_contact', $event.detail.value)">
+            (ionInput)="setMember('urgent_contact', $event.detail.value)">
           </ion-input>
-        </div>
+        </ion-item>
       </div>
 
-      <div class="form-group">
-        <label class="input-label">{{ 'urgent_phone' | translate }}</label>
-        <div class="custom-input-wrapper">
-          <ion-input 
-            type="tel" 
+      <!-- Urgent kinship -->
+      <div class="list-item">
+        <ion-label>{{ 'urgent_kinship' | translate }}</ion-label>
+        <ion-item>
+          <ion-input
+            type="text"
+            [value]="member().urgent_kinship"
+            (ionInput)="setMember('urgent_kinship', $event.detail.value)">
+          </ion-input>
+        </ion-item>
+      </div>
+
+      <!-- Urgent phone -->
+      <div class="list-item">
+        <ion-label>{{ 'urgent_phone' | translate }}</ion-label>
+        <ion-item>
+          <ion-input
+            type="number"
             [value]="member().urgent_phone"
-            (ionInput)="updateMemberField('urgent_phone', $event.detail.value)">
+            (ionInput)="setMember('urgent_phone', $event.detail.value)">
           </ion-input>
-        </div>
+        </ion-item>
       </div>
 
-      <div class="section-divider">{{ 'member_contact' | translate }}</div>
+      <!-- Member phone -->
 
-      <div class="form-group">
-        <label class="input-label">{{ 'member_mobile_phone' | translate }}</label>
-        <div class="custom-input-wrapper phone-input">
-          <span class="prefix" *ngIf="member().phone_prefix">({{member().phone_prefix}})</span>
-          <ion-input 
-            type="tel" 
+      <div class="list-item">
+        <label class="input-label">
+          {{ 'mobile_phone' | translate }}
+        </label>
+        <div class="phone-input">
+          @if (member().phone_prefix) {
+            <span class="prefix">
+                ({{ member().phone_prefix }})
+              </span>
+          }
+          <ion-input
+            type="number"
             [value]="member().phone"
-            (ionInput)="updateMemberField('phone', $event.detail.value)">
+            (ionInput)="setMember('phone', $event.detail.value)">
           </ion-input>
         </div>
       </div>
 
-      <div class="form-group" *ngFor="let item of customFields()">
-        <label class="input-label">{{ item.label }}</label>
-        <div class="custom-input-wrapper">
-          <ion-input 
-            type="text" 
-            [value]="item.value"
-            (ionInput)="item.value = $event.detail.value">
-          </ion-input>
-        </div>
+      <!-- Enrollment date -->
+      <div class="list-item">
+        <ion-label class="unmargined">{{ 'enrollment_date' | translate }}
+          <small>
+            <ion-checkbox (ionBlur)="resetEnrollmentDate()"
+              [(ngModel)]="member().enrollment_date_show">
+              {{ 'unknown' | translate }}
+            </ion-checkbox>
+          </small>
+        </ion-label><br>
+        @if (!member().enrollment_date_show) {
+          <ion-item class="fit-content">
+            <ion-datetime
+              presentation="date"
+              [preferWheel]="true"
+              [max]="maxDate()"
+              [value]="member().enrollment_date"
+              (ionChange)="setMember('enrollment_date', $event.detail.value)">
+            </ion-datetime>
+          </ion-item>
+        }
       </div>
+      @if (showMembershipsAndMedical()) {
+        <!-- Membership -->
+        <div class="list-item">
+          <ion-label>{{ 'membership' | translate }}*</ion-label>
+          <ion-item>
+            <ion-select
+              [value]="member().team_membership_id"
+              (ionChange)="setMember('team_membership_id', $event.detail.value); changeGroup()">
 
-    </div>
-  </div>
+              @for (item of team_memberships(); track item.id) {
+                <ion-select-option [value]="item.id">
+                  {{ item.amount }} {{ item.iso_code }}
+                </ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+        </div>
 
-  <ion-modal [keepContentsMounted]="true">
-    <ng-template>
-      <ion-datetime 
-        id="birthdate" 
-        presentation="date"
-        [preferWheel]="true"
-        [max]="maxDate()"
-        [value]="member().birth_date"
-        (ionChange)="updateMemberField('birth_date', $event.detail.value)">
-      </ion-datetime>
-    </ng-template>
-  </ion-modal>
-</ion-content>
+        @if (showMedicalExamination()) {
+          <!-- Last medical -->
+          <div class="list-item">
+            <ion-label class="unmargined">{{ 'last_medical_examination' | translate }}
+              <small>
+                <ion-checkbox (ionBlur)="resetLastMedicalExamination()"
+                  [(ngModel)]="member().last_medical_examination_show">
+                  {{ 'unknown' | translate }}
+                </ion-checkbox>
+              </small>
+            </ion-label><br>
 
-<ion-footer class="ion-no-border ion-padding-start ion-padding-end">
-  <ion-button 
-    expand="block" 
-    shape="round" 
-    class="btn-save"
-    (click)="save()" 
-    [disabled]="!isValid() || isSubmitting()">
-    
-    <ion-spinner name="crescent" *ngIf="isSubmitting()" slot="start"></ion-spinner>
-    {{ 'save' | translate }}
+          @if (!member().last_medical_examination_show) {
+            <ion-item class="fit-content">
+              <ion-datetime
+                presentation="date"
+                [preferWheel]="true"
+                [max]="maxDate()"
+                [value]="member().last_medical_examination"
+                (ionChange)="setMember('last_medical_examination', $event.detail.value)">
+              </ion-datetime>
+            </ion-item>
+          }
+        </div>
+
+          <!-- Next medical -->
+          <div class="list-item">
+            <ion-label class="unmargined">{{ 'next_medical_examination' | translate }}
+              <small>
+                <ion-checkbox (ionBlur)="resetNextMedicalExamination()"
+                  [(ngModel)]="member().next_medical_examination_show">
+                  {{ 'unknown' | translate }}
+                </ion-checkbox>
+              </small>
+            </ion-label><br>
+
+          @if (!member().next_medical_examination_show) {
+            <ion-item class="fit-content">
+              <ion-datetime
+                presentation="date"
+                [preferWheel]="true"
+                [max]="maxDate()"
+                [value]="member().next_medical_examination"
+                (ionChange)="setMember('next_medical_examination', $event.detail.value)">
+              </ion-datetime>
+            </ion-item>
+          }
+        </div>
+
+        }
+      }
+
+      <!-- Custom fields -->
+      @for (item of customFields(); track item.id) {
+        <div class="list-item">
+          <ion-label>{{ item.label }}</ion-label>
+          <ion-item>
+            <ion-input
+              type="text"
+              [value]="item.value"
+              (ionInput)="setCustomField(item.id, $event.detail.value)">
+            </ion-input>
+          </ion-item>
+        </div>
+      }
+      <ion-item></ion-item>
+
+    </ion-list>
+  </ion-content>
+} @else {
+  <!-- Skeleton -->
+  <ion-content class="bg_color ion-padding">
+    <ion-list lines="none">
+      @for (i of [1,2,3,4,5,6,7,8]; track i) {
+        <div class="list-item skeleton-item">
+          <ion-label>
+            <ion-skeleton-text animated style="width:40%"></ion-skeleton-text>
+          </ion-label>
+          <ion-item>
+            <ion-skeleton-text animated style="width:100%;height:50px"></ion-skeleton-text>
+          </ion-item>
+        </div>
+      }
+    </ion-list>
+  </ion-content>
+}
+
+<ion-footer class="ion-no-border animate__animated animate__fadeInUp">
+  <ion-button
+    expand="block"
+    class="save-btn mt-6"
+    (click)="save()"
+    [disabled]="clicked() || !show()">
+
+    @if (clicked()) {
+      <ion-spinner name="dots"></ion-spinner>
+    } @else if (!show()) {
+      <ion-skeleton-text animated style="width:50%;height:20px;margin:auto"></ion-skeleton-text>
+    } @else {
+      <span>{{ 'save' | translate }}</span>
+    }
+
   </ion-button>
 </ion-footer>

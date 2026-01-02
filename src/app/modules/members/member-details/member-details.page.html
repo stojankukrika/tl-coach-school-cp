@@ -13,22 +13,24 @@
 </ion-header>
 
 <ion-content class="bg_color ion-padding">
-  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-  </div>
-
-  <ng-container *ngIf="!isLoading() && teamMember()">
+  @if (isLoading()) {
+    <div class="ion-padding ion-text-center">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    </div>
+  } @else {
     <div class="content-wrapper animate__animated animate__fadeIn">
-      
       <div class="profile-hero">
-        <div class="avatar-container" *ngIf="teamMember().avatar_url">
-          <img [src]="teamMember().avatar_url" />
-        </div>
-        <div class="avatar-placeholder" *ngIf="!teamMember().avatar_url">
-          <ion-icon name="person"></ion-icon>
-        </div>
+        @if (teamMember().avatar_url) {
+          <div class="avatar-container" [class.hidden]="!teamMember().avatar_url">
+            <img [src]="teamMember().avatar_url"/>
+          </div>
+        } @else {
+          <div class="avatar-placeholder" [class.hidden]="teamMember().avatar_url">
+            <ion-icon name="person"></ion-icon>
+          </div>
+        }
         <h1 class="member-name">{{ teamMember().first_name }} {{ teamMember().last_name }}</h1>
-        <span class="member-badge">{{ teamMember().membership_number || 'No ID' }}</span>
+        <span class="member-badge">{{ teamMember().membership_number || '-' }}</span>
       </div>
 
       <div class="section-divider">{{ 'general_info' | translate }}</div>
@@ -37,78 +39,279 @@
           <span class="label">{{ 'birth_date' | translate }}</span>
           <span class="value">{{ teamMember().birth_date }}</span>
         </div>
-        <div class="info-row" *ngIf="teamMember().urgent_phone">
-          <span class="label">{{ 'urgent_contact' | translate }}</span>
-          <span class="value">{{ teamMember().urgent_contact }} <small>({{ teamMember().urgent_kinship }})</small></span>
-        </div>
-        <div class="info-row" *ngIf="teamMember().urgent_phone">
-          <span class="label">{{ 'urgent_phone' | translate }}</span>
-          <span class="value link">
-            <a href="tel:{{teamMember().urgent_phone}}">{{ teamMember().urgent_phone }}</a>
-          </span>
-        </div>
+        @if (teamMember().urgent_phone !== '' && teamMember().urgent_phone !== null) {
+          @if (teamMember().urgent_contact !== '' && teamMember().urgent_contact !== null) {
+            <div class="info-row">
+              <span class="label">{{ 'urgent_contact' | translate }}</span>
+              <span class="value">{{ teamMember().urgent_contact || '' }}
+                @if (teamMember().urgent_kinship !== '' && teamMember().urgent_kinship !== null) {
+                  <small>({{ teamMember().urgent_kinship || '' }})</small>
+                }
+            </span>
+            </div>
+          }
+          @if (teamMember().urgent_phone !== '' && teamMember().urgent_phone !== null) {
+            <div class="info-row">
+              <span class="label">{{ 'urgent_phone' | translate }}</span>
+              <span class="value link">
+                <a href="tel:{{teamMember().urgent_phone}}">{{ teamMember().urgent_phone }}</a>
+              </span>
+            </div>
+          }
+        }
       </div>
 
-      <ng-container *ngIf="customFields().length > 0">
-        <div class="section-divider">{{ 'additional_details' | translate }}</div>
+      @if (customFields().length > 0) {
+        <div class="section-divider">{{ 'additional_details' | translate }}
+        </div>
         <div class="info-card">
-          <div class="info-row" *ngFor="let item of customFields()">
-            <span class="label">{{ item.label }}</span>
-            <span class="value">{{ item.custom_value }}</span>
-          </div>
+          @for (customFiled of customFields(); track customFiled.id) {
+            <div class="info-row">
+              <span class="label">{{ customFiled.label || '' }}</span>
+              <span class="value">{{ customFiled.custom_value || '' }}</span>
+            </div>
+          }
         </div>
-      </ng-container>
+      }
 
-      <ng-container *ngIf="parents().length > 0">
+      @if (parents().length > 0) {
         <div class="section-divider">{{ 'parents' | translate }}</div>
-        <div class="info-card parent-card" *ngFor="let item of parents()">
-          <div class="info-row no-border">
-            <span class="value bold">{{ item.first_name }} {{ item.last_name }}</span>
-            <span class="value link" *ngIf="item.phone">
-              <a href="tel:{{item.phone_prefix}}{{item.phone}}">
-                <ion-icon name="call-outline"></ion-icon> {{ item.phone }}
-              </a>
-            </span>
+        @for (parent of parents(); track parent.id) {
+          <div class="info-card parent-card">
+            <div class="info-row no-border">
+              <span class="value bold">{{ parent.first_name || '' }} {{ parent.last_name || '' }}</span>
+              @if (parent.phone.length > 0) {
+                <span class="value link">
+                  <a href="tel:{{parent.phone_prefix}}{{parent.phone}}">
+                    <ion-icon name="call-outline"></ion-icon>
+                    {{ parent.phone }}
+                  </a>
+                </span>
+              }
+            </div>
           </div>
-        </div>
-      </ng-container>
+        }
+      }
+      <div class="section-divider">{{ 'measurement_chart' | translate }}</div>
+      <div class="info-card">
+        @if (measurement_type() === 'individual') {
+          @if (categories().length > 0) {
+            <ion-item>
+              <ion-label>{{ 'category' | translate }}</ion-label>
+              <ion-select
+                [value]="selectedCategory()"
+                (ionChange)="updateSelectedCategory($event.detail.value)">
+                @for (category of categories(); track category.id) {
+                  <ion-select-option [value]="category">
+                    {{ category.name }}
+                  </ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+          }
 
-      <div class="section-divider">{{ 'reports' | translate }}</div>
-      <div class="chart-card">
-        <div class="chart-controls">
-          <span class="label">{{ 'date_from' | translate }}</span>
-          <ion-datetime-button datetime="from"></ion-datetime-button>
-        </div>
+          @if (selectedCategory()) {
+            <ion-item>
+              <ion-label>{{ 'value' | translate }}</ion-label>
+              <ion-select
+                [value]="selectedValue()"
+                (ionChange)="updateSelectedValue($event.detail.value)">
+                @for (value of selectedCategory()!.values_array; track $index) {
+                  <ion-select-option [value]="value">
+                    {{ value }}
+                  </ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+          }
+        } @else {
+          @for (category of categories(); track category.id) {
+            <ion-item>
+              <ion-label>{{ category.name }}</ion-label>
+              <ion-select
+                [value]="category.value"
+                (ionChange)="updateCategoryValue(category.id, $event.detail.value)">
+                @for (item of category.values_array; track $index) {
+                  <ion-select-option [value]="item">{{ item }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+          }
+        }
+        <ion-item>
+          <ion-label>{{ 'date_from' | translate }}</ion-label>
+          <ion-datetime-button datetime="date_from"></ion-datetime-button>
+          <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime id="date_from"
+                            [value]="dateFrom()"
+                            (ionChange)="onDateFromChange($event)"
+                            presentation="date"
+              ></ion-datetime>
+            </ng-template>
+          </ion-modal>
+        </ion-item>
 
-        <div class="chart-area">
-          <canvas #lineMeasurements></canvas>
-        </div>
+        <ion-item>
+          <ion-label>{{ 'date_to' | translate }}</ion-label>
+          <ion-datetime-button datetime="date_to"></ion-datetime-button>
+          <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime id="date_to"
+                            [value]="dateFrom()"
+                            (ionChange)="onDateToChange($event)"
+                            presentation="date"
+              ></ion-datetime>
+            </ng-template>
+          </ion-modal>
+        </ion-item>
+        <ion-button
+          expand="block"
+          class="save-btn mt-6"
+          [disabled]="clicked()"
+          (click)="loadChart()">
 
-        <ion-button expand="block" fill="clear" class="btn-load" (click)="loadData()" [disabled]="isSubmitting()">
-          <ion-spinner *ngIf="isSubmitting()" name="crescent" slot="start"></ion-spinner>
-          {{ 'load_data' | translate }}
+          @if (isChartLoading()) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            <span>{{ 'load_data' | translate }}</span>
+          }
+
         </ion-button>
       </div>
 
-    </div>
-  </ng-container>
+      <!-- CHART -->
+      <div class="info-card">
+        <div class="chart-card">
+          <div style="height:250px;">
+            <canvas #lineMeasurements></canvas>
+          </div>
+        </div>
+      </div>
 
-  <ion-popover trigger="member-options" triggerAction="click" #popover class="custom-popover">
-    <ng-template>
-      <ion-list lines="full">
-        <ion-item button (click)="popover.dismiss(); navigateTo('member-photo', id())">
+      @if (measurements()) {
+        <div class="info-card">
+          <h3 class="section-label-slate">
+            {{ 'measurements' | translate }}
+          </h3>
+
+          @for (item of measurements(); track item.id) {
+            <div class="measurement-result-card">
+              <div class="card-top">
+                <div class="meta-info">
+                  <span class="m-key">{{ item.key }}</span>
+                  <span class="m-date">{{ item.date_formatted }}</span>
+                </div>
+                <div class="m-value">
+                  {{ item.value_total ?? item.value }}
+                </div>
+              </div>
+
+              <div class="card-bottom">
+                <div class="attributes-row">
+                  @if (item.attributes?.length) {
+                    @for (attr of item.attributes; track attr.id ?? attr.value) {
+                      <ion-badge color="primary">{{ attr.value }}</ion-badge>
+                    }
+                  } @else {
+                    <span class="no-attr">-</span>
+                  }
+                </div>
+
+                @if (canDeleteMeasurement()) {
+                  <div class="action-row">
+                    <ion-button
+                      fill="clear"
+                      color="primary"
+                      (click)="editMeasurement(item)">
+                      <ion-icon
+                        name="create-outline"
+                        slot="icon-only">
+                      </ion-icon>
+                    </ion-button>
+
+                    <ion-button
+                      fill="clear"
+                      color="danger"
+                      (click)="deleteMeasurement(item)">
+                      <ion-icon
+                        name="trash-outline"
+                        slot="icon-only">
+                      </ion-icon>
+                    </ion-button>
+                  </div>
+                }
+              </div>
+
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</ion-content>
+<ion-modal
+  [isOpen]="editModalOpen()"
+  (didDismiss)="closeEditModal()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>
+          {{ 'edit_measurement' | translate }}
+        </ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeEditModal()" color="danger">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <div class="custom-rounded-select">
+        <ion-input
+          [value]="editableMeasurementValue.value"
+          (ionInput)="updateEditableMeasurement($event.detail.value)"
+          placeholder="{{ 'value' | translate }}">
+        </ion-input>
+      </div>
+
+      <ion-button
+        expand="block"
+        class="save-btn mt-6"
+        (click)="saveMeasurement(editableMeasurement())">
+        {{ 'save' | translate }}
+      </ion-button>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+
+<ion-popover
+  trigger="member-options"
+  dismissOnSelect="true"
+  side="bottom"
+  alignment="end"
+>
+  <ng-template>
+    <ion-content>
+      <ion-list lines="none" class="popover-list">
+        <ion-item button (click)="navigateTo('member-photo', teamMember().id)">
           <ion-icon name="camera-outline" slot="start"></ion-icon>
           <ion-label>{{ 'make_photo' | translate }}</ion-label>
         </ion-item>
-        <ion-item button (click)="popover.dismiss(); navigateTo('member-edit', id())">
+
+        <ion-item button (click)="navigateTo('member-edit', teamMember().id)">
           <ion-icon name="create-outline" slot="start"></ion-icon>
           <ion-label>{{ 'edit_member' | translate }}</ion-label>
         </ion-item>
-        <ion-item button *ngIf="showDeleteMember()" (click)="popover.dismiss(); deleteMember()" color="danger">
+
+        <ion-item button (click)="deleteMember()">
           <ion-icon name="trash-outline" slot="start"></ion-icon>
           <ion-label>{{ 'delete_member' | translate }}</ion-label>
         </ion-item>
+
       </ion-list>
-    </ng-template>
-  </ion-popover>
-</ion-content>
+    </ion-content>
+  </ng-template>
+</ion-popover>

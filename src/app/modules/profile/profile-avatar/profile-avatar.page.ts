@@ -1,51 +1,50 @@
-import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 import { NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthConstants } from 'src/app/core/config/auth-constants';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { StorageService } from 'src/app/core/services/storage.service'; // Added
 import { ToastService } from 'src/app/core/services/toast.service';
 
 @Component({
   selector: 'app-profile-avatar',
   templateUrl: './profile-avatar.page.html',
   styleUrls: ['./profile-avatar.page.scss'],
-  standalone: false
+standalone:false
 })
 export class ProfileAvatarPage implements OnInit {
 
   show = signal(false);
-  
-  // --- Dependency Injection ---
+  // --- Dependency Injection using `inject` ---
   public translate = inject(TranslateService);
   private authService = inject(AuthService);
   private navCtrl = inject(NavController);
   public toastService = inject(ToastService);
-  private storage = inject(StorageService); // Injected StorageService
 
   // --- State as Writable Signals ---
   showForm: WritableSignal<boolean> = signal(false);
   user: WritableSignal<any | null> = signal(null);
   clicked: WritableSignal<boolean> = signal(false);
 
-  constructor() {}
+  // --- Constructor ---
+  constructor() {
+    // Initial state for clicked is handled by the signal declaration
+  }
 
   // --- Lifecycle Hooks ---
-  async ngOnInit() {
+  ngOnInit() {
     this.showForm.set(false);
     
-    // 1. Refactored to use async StorageService
-    const userData = await this.storage.get(AuthConstants.AUTH);
-    
-    if (userData) {
-      // Ensure photo is null initially as per original logic
-      this.user.set({ ...userData, photo: null }); 
+    // Load user data from local storage
+    const userString = localStorage.getItem(AuthConstants.AUTH);
+    if (userString) {
+      const userData = JSON.parse(userString);
+      // Ensure photo is null initially, as per original logic
+      this.user.set({ ...userData, photo: null } as any); 
     } else {
-      this.user.set({ photo: null });
+      this.user.set({ photo: null } as any);
     }
-
     setTimeout(() => {
       this.show.set(true);
     }, 500);
@@ -54,6 +53,7 @@ export class ProfileAvatarPage implements OnInit {
   // --- Public Methods ---
 
   pickImage = async (): Promise<void> => {
+    // Check if running on a non-web platform for the Camera plugin
     if (Capacitor.getPlatform() === 'web') {
       console.error("Camera plugin is not implemented for web platform");
       alert(this.translate.instant("camera_web_not_supported"));
@@ -64,15 +64,17 @@ export class ProfileAvatarPage implements OnInit {
       const image = await Camera.getPhoto({
         quality: 90,
         allowEditing: true,
-        saveToGallery: false, 
+        saveToGallery: false, // Changed from true in original, safer default
         resultType: CameraResultType.Base64,
-        source: CameraSource.Prompt, 
+        source: CameraSource.Prompt, // Prompt user to choose between library or camera
         correctOrientation: true,
         width: 1024,
         height: 1024,
       });
       
       const photoBase64 = `data:image/jpeg;base64,${image.base64String}`;
+      
+      // Update the photo property within the user signal
       this.user.update(u => ({ ...u!, photo: photoBase64 }));
 
     } catch (error) {
@@ -95,10 +97,8 @@ export class ProfileAvatarPage implements OnInit {
       next: () => {
         // Fetch fresh user info after updating the photo
         this.authService.info().subscribe({
-          next: async (data: any) => {
-            // 2. Refactored to async storage.set
-            await this.storage.set(AuthConstants.AUTH, data);
-            
+          next: (data: any) => {
+            localStorage.setItem(AuthConstants.AUTH, JSON.stringify(data));
             this.clicked.set(false);
             this.navCtrl.pop();
           },

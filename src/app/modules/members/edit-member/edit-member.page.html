@@ -1,123 +1,216 @@
-<ion-header class="safe-area-top ion-no-border">
+<ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
+      <ion-back-button
+        icon="chevron-back-outline"
+        defaultHref="/home">
+      </ion-back-button>
     </ion-buttons>
-    <ion-title>{{ 'edit_member' | translate }}</ion-title>
+
+    <ion-title>
+      {{ 'edit_member' | translate }}
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="bg_color">
-  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-  </div>
 
-  <div class="content-wrapper animate__animated animate__fadeIn" *ngIf="!isLoading() && member()">
-    <div class="form-container">
+  @if (!show()) {
+    <!-- LOADING / SKELETON -->
+    <div class="ion-padding">
+      @for (_ of [1, 2, 3, 4]; track _) {
+        <div class="skeleton-group">
+          <ion-skeleton-text
+            animated
+            style="width: 40%; height: 16px; margin-bottom: 8px;">
+          </ion-skeleton-text>
 
+          <ion-skeleton-text
+            animated
+            style="width: 100%; height: 52px; border-radius: 12px;">
+          </ion-skeleton-text>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- FORM -->
+    <div class="form-container animate__animated animate__fadeIn">
+
+      <!-- FIRST NAME -->
       <div class="form-group">
-        <label class="input-label">{{ 'first_name' | translate }}<span class="required">*</span></label>
+        <label class="input-label-slate">
+          {{ 'first_name' | translate }}*
+        </label>
         <div class="custom-input-wrapper">
-          <ion-input 
-            type="text" 
-            [value]="member().first_name"
-            (ionInput)="updateMemberField('first_name', $event.detail.value)">
+          <ion-input
+            type="text"
+            [ngModel]="member().first_name"
+            (ngModelChange)="updateMemberField('first_name', $event)">
           </ion-input>
         </div>
       </div>
 
+      <!-- LAST NAME -->
       <div class="form-group">
-        <label class="input-label">{{ 'last_name' | translate }}<span class="required">*</span></label>
+        <label class="input-label-slate">
+          {{ 'last_name' | translate }}*
+        </label>
         <div class="custom-input-wrapper">
-          <ion-input 
-            type="text" 
-            [value]="member().last_name"
-            (ionInput)="updateMemberField('last_name', $event.detail.value)">
+          <ion-input
+            type="text"
+            [ngModel]="member().last_name"
+            (ngModelChange)="updateMemberField('last_name', $event)">
           </ion-input>
         </div>
       </div>
 
+      <!-- BIRTH DATE -->
       <div class="form-group">
-        <label class="input-label">{{ 'birth_date' | translate }}</label>
-        <div class="custom-input-wrapper date-input-wrapper">
-          <ion-datetime-button datetime="birthdate"></ion-datetime-button>
+        <label class="input-label-slate">
+          {{ 'birth_date' | translate }}
+        </label>
+        <div class="datetime-wrapper">
+          <ion-datetime
+            presentation="date"
+            [max]="maxDate()"
+            [ngModel]="member().birth_date"
+            (ngModelChange)="updateMemberField('birth_date', $event)">
+          </ion-datetime>
         </div>
       </div>
 
+      <!-- GROUPS -->
       <div class="form-group">
-        <label class="input-label">{{ 'groups' | translate }}<span class="required">*</span></label>
+        <label class="input-label-slate">
+          {{ 'groups' | translate }}*
+        </label>
         <div class="custom-input-wrapper">
-          <ion-select 
-            multiple="true" 
-            interface="popover"
-            [value]="member().group_ids"
-            (ionChange)="updateMemberField('group_ids', $event.detail.value)"
-            toggleIcon="chevron-down-outline">
-            <ion-select-option *ngFor="let item of groups()" [value]="item.id">
-              {{ item.name }}
-            </ion-select-option>
+          <ion-select
+            multiple
+            [ngModel]="member().group_ids"
+            (ngModelChange)="updateMemberField('group_ids', $event)">
+            @for (item of groups(); track item.id) {
+              <ion-select-option [value]="item.id">
+                {{ item.name }}
+              </ion-select-option>
+            }
           </ion-select>
         </div>
       </div>
 
-      <div class="section-divider">{{ 'emergency_contact' | translate }}</div>
-
+      <!-- URGENT CONTACT -->
       <div class="form-group">
-        <label class="input-label">{{ 'urgent_contact' | translate }}</label>
+        <label class="input-label-slate">
+          {{ 'urgent_contact' | translate }}
+        </label>
         <div class="custom-input-wrapper">
-          <ion-input 
-            [value]="member().urgent_contact"
-            (ionInput)="updateMemberField('urgent_contact', $event.detail.value)">
+          <ion-input
+            type="text"
+            [ngModel]="member().urgent_contact"
+            (ngModelChange)="updateMemberField('urgent_contact', $event)">
           </ion-input>
         </div>
       </div>
 
+      <!-- URGENT PHONE -->
       <div class="form-group">
-        <label class="input-label">{{ 'phone' | translate }}</label>
+        <label class="input-label-slate">
+          {{ 'urgent_phone' | translate }}
+        </label>
         <div class="custom-input-wrapper">
-          <ion-input 
-            type="tel" 
-            [value]="member().urgent_phone"
-            (ionInput)="updateMemberField('urgent_phone', $event.detail.value)">
+          <ion-input
+            type="tel"
+            inputmode="numeric"
+            [ngModel]="member().urgent_phone"
+            (ngModelChange)="updateMemberField('urgent_phone', $event)">
           </ion-input>
         </div>
       </div>
 
-      <div class="form-group" *ngFor="let item of customFields()">
-        <label class="input-label">{{ item.label }}</label>
-        <div class="custom-input-wrapper">
-          <ion-input 
-            [value]="item.value"
-            (ionInput)="item.value = $event.detail.value">
-          </ion-input>
+      <!-- MEMBERSHIP + MEDICAL -->
+      @if (showMembershipsAndMedical()) {
+
+        <div class="form-group">
+          <label class="input-label-slate">
+            {{ 'membership' | translate }}*
+          </label>
+          <div class="custom-input-wrapper">
+            <ion-select
+              [ngModel]="member().team_membership_id"
+              (ngModelChange)="updateMemberField('team_membership_id', $event)">
+              @for (item of teamMemberships(); track item.id) {
+                <ion-select-option [value]="item.id">
+                  {{ item.amount }} {{ item.iso_code }}
+                </ion-select-option>
+              }
+            </ion-select>
+          </div>
         </div>
-      </div>
+
+        @if (showMedicalExamination()) {
+          <div class="form-group">
+            <label class="input-label-slate">
+              {{ 'last_medical_examination' | translate }}
+            </label>
+            <div class="datetime-wrapper">
+              <ion-datetime
+                presentation="date"
+                [ngModel]="member().last_medical_examination"
+                (ngModelChange)="updateMemberField('last_medical_examination', $event)">
+              </ion-datetime>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="input-label-slate">
+              {{ 'next_medical_examination' | translate }}
+            </label>
+            <div class="datetime-wrapper">
+              <ion-datetime
+                presentation="date"
+                [ngModel]="member().next_medical_examination"
+                (ngModelChange)="updateMemberField('next_medical_examination', $event)">
+              </ion-datetime>
+            </div>
+          </div>
+        }
+
+      }
+
+      <!-- CUSTOM FIELDS -->
+      @for (field of customFields(); track field.id) {
+        <div class="form-group">
+          <label class="input-label-slate">
+            {{ field.label }}
+          </label>
+          <div class="custom-input-wrapper">
+            <ion-input
+              type="text"
+              [(ngModel)]="field.value">
+            </ion-input>
+          </div>
+        </div>
+      }
 
     </div>
-  </div>
+  }
+  <ion-item><br></ion-item>
 
-  <ion-modal [keepContentsMounted]="true">
-    <ng-template>
-      <ion-datetime 
-        id="birthdate" 
-        presentation="date"
-        [preferWheel]="true"
-        [max]="maxDate()"
-        [value]="member()?.birth_date"
-        (ionChange)="updateMemberField('birth_date', $event.detail.value)">
-      </ion-datetime>
-    </ng-template>
-  </ion-modal>
 </ion-content>
 
 <ion-footer class="ion-no-border ion-padding-start ion-padding-end">
-  <ion-button 
-    expand="block" 
-    shape="round" 
-    class="btn-save"
-    [disabled]="!isValid() || isSubmitting()"
-    (click)="save()">
-    <ion-spinner *ngIf="isSubmitting()" name="crescent" slot="start"></ion-spinner>
+  <ion-button
+    expand="block"
+    class="save-btn mt-6"
+    (click)="save()"
+    [disabled]="clicked() || !isFormValid()">
+
+    @if (clicked()) {
+      <ion-spinner
+        name="crescent"
+        slot="start">
+      </ion-spinner>
+    }
+
     {{ 'save' | translate }}
   </ion-button>
 </ion-footer>

@@ -1,18 +1,17 @@
 import { Component, Inject, OnInit, OnDestroy, inject, signal, WritableSignal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Platform, NavController, ModalController } from '@ionic/angular';
+import { Platform, NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { App } from '@capacitor/app';
+import { APP_CONFIG, AppConfig } from './core/config/app.config';
+import { FcmService } from './core/services/fcm.service';
+import { MyEvent } from './core/services/myevent.service';
+import { Constants } from './models/contants.models';
+import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
-
-// Services and Config
-import { MyEvent } from './core/services/myevent.service';
-import { Constants } from './core/models/contants.models';
-import { FcmService } from './core/services/fcm.service';
-import { StorageService } from './core/services/storage.service'; // Assumed from your second code
-import { ToastService } from './core/services/toast.service';     // Assumed from your second code
-import { APP_CONFIG, AppConfig } from './core/config/app.config';
+import { App } from '@capacitor/app';
+import { ToastService } from './core/services/toast.service';
+import { StorageService } from './core/services/storage.service';
 
 @Component({
   selector: 'app-root',
@@ -21,17 +20,17 @@ import { APP_CONFIG, AppConfig } from './core/config/app.config';
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
-  // --- Services Injected (Modern Pattern) ---
+  // --- Services Injected ---
   private router = inject(Router);
   private platform = inject(Platform);
   private translate = inject(TranslateService);
   private fcmService = inject(FcmService);
   private navCtrl = inject(NavController);
   private myEvent = inject(MyEvent);
-  private storage = inject(StorageService);
   private toastService = inject(ToastService);
+  private storage = inject(StorageService);
 
-  // --- Properties (Using Signals for Performance) ---
+  // --- Properties ---
   public rtlSide: WritableSignal<string> = signal('ltr');
   public isOnline: WritableSignal<boolean> = signal(navigator.onLine);
 
@@ -43,22 +42,24 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private initialize(): void {
     this.platform.ready().then(async () => {
-      // 1. Globalization - Load saved language preference
+      // 1. Critical: Setup Globalization first using Native Storage
       await this.loadGlobalization();
       
-      // 2. Listeners
+      // 2. Setup Listeners
       this.backButtonSubscribeMethod();
       this.setupConnectivityListeners();
       this.setupAppLifeCycleListener();
       
-      // 3. Native UI Setup
-      await this.initNativeUI();
+      // 3. Native UI
+      await this.initEdgeToEdge();
       
-      // 4. Background Services
-      this.safePushInit();
+      // 4. Delayed Initializations
+      setTimeout(() => {
+        this.safePushInit();
+      }, 1000);
     });
 
-    // Handle language change events from Settings/Language pages
+    // Subscribe to language change events from the UI
     this.myEvent.getLanguageObservable().subscribe(value => {
       this.navCtrl.navigateRoot(['./']);
       this.globalize(value);
@@ -74,31 +75,32 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Standard platform observables like backButton are handled by Ionic/Capacitor lifecycle
+    // Note: platform.backButton is an Observable, normally handled by platform lifecycle
   }
 
   // --- Feature Methods ---
-
+  /** * REFACTORED: Now uses StorageService (Capacitor Preferences) 
+   * to survive store updates.
+   */
   private async loadGlobalization(): Promise<void> {
     const defaultLang = await this.storage.get(Constants.KEY_DEFAULT_LANGUAGE);
     this.globalize(defaultLang);
   }
 
-  /** Sets translation language and UI direction */
+  /** Sets the translation language and RTL/LTR direction. */
   globalize(languagePriority: string | null): void {
     this.translate.setDefaultLang('en');
     const defaultLangCode = this.config.availableLanguages[0].code;
     const langToUse = languagePriority && languagePriority.length ? languagePriority : defaultLangCode;
-    
     this.translate.use(langToUse);
     this.setDirectionAccordingly(langToUse);
   }
 
-  /** Syncs Signal, HTML dir attribute, and Sidebar side */
+  /** Sets the HTML direction attribute and signal. */
   setDirectionAccordingly(lang: string): void {
     const direction = (lang === 'ar') ? 'rtl' : 'ltr';
     this.rtlSide.set(direction);
-    document.dir = direction; // Required for CSS [dir="rtl"] selectors
+    document.dir = direction; // Important for global CSS flipping
   }
 
   private setupConnectivityListeners(): void {
@@ -107,28 +109,22 @@ export class AppComponent implements OnInit, OnDestroy {
   }
   
   // --- Native/Capacitor Methods ---
-
-  /** Refactored Back Button: Exit on double-tap at Home */
+  /** Handles back button logic with Capacitor App plugin instead of legacy navigator. */
   private backButtonSubscribeMethod(): void {
     let lastTimeBackPressed = 0;
     const timeLimit = 1500;
-
     this.platform.backButton.subscribeWithPriority(10, () => {
       const currentUrl = this.router.url;
 
-      // Check if user is on a root page
-      if (currentUrl === '/home' || currentUrl === '/' || currentUrl === '/tabs/home') {
+      if (currentUrl === '/home' || currentUrl === '/') {
         const currentTime = new Date().getTime();
 
         if (currentTime - lastTimeBackPressed < timeLimit) {
-          App.exitApp(); // Capacitor App Plugin
+          App.exitApp(); 
         } else {
           lastTimeBackPressed = currentTime;
           this.toastService.presentToast(this.translate.instant('press_again_to_exit'));
         }
-      } else {
-        // Default behavior: go back
-        this.navCtrl.back();
       }
     });
   }
@@ -136,21 +132,40 @@ export class AppComponent implements OnInit, OnDestroy {
   private async setupAppLifeCycleListener(): Promise<void> {
     App.addListener('appStateChange', ({ isActive }) => {
       if (isActive) {
-        // Logic for returning from background (e.g., refresh token)
+        // Handle logic when app returns to foreground
       }
     });
   }
 
-  private async initNativeUI(): Promise<void> {
-    try {
-      if (this.platform.is('capacitor')) {
-        // Set Status Bar to be visible and white as per your original code
-        await StatusBar.setStyle({ style: Style.Light });
-        await StatusBar.setBackgroundColor({ color: '#ffffff' });
+  private async initEdgeToEdge(): Promise<void> {
+    // check if running on Android or iOS
+    if (!this.platform.is('android') && !this.platform.is('ios')) {
+      return;
+    }
+    if (this.platform.is('android')) {
+      try {
+        await EdgeToEdge.enable();
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          this.updateStatusBarStyle();
+        });
+        await this.updateStatusBarStyle();
         await SplashScreen.hide();
+      } catch (err:any) {
+        console.log('Capacitor native plugin error:', err.message);
       }
-    } catch (err) {
-      console.warn('Native UI initialization skipped (Web/Browser mode)');
+    } else {
+      await SplashScreen.hide();
+    }
+  }
+
+  private async updateStatusBarStyle(): Promise<void> {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) {
+      await StatusBar.setStyle({ style: Style.Dark });
+      await EdgeToEdge.setBackgroundColor({ color: '#000000' });
+    } else {
+      await StatusBar.setStyle({ style: Style.Light });
+      await EdgeToEdge.setBackgroundColor({ color: '#ffffff' });
     }
   }
 

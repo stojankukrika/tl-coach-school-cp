@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://app.trenirajlako.com/api/coach/',
+  apiUrl: 'http://treniraj-lako.test/api/coach/',
   version: '2.0.0'
 };

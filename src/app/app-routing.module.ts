@@ -1,12 +1,21 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import {AuthGuard} from "./core/guard/auth.guard";
 
 const routes: Routes = [
-
   {
     path: '',
-    redirectTo: 'sign-in',
+    redirectTo: 'home',
     pathMatch: 'full'
+  },
+  {
+    path: 'home',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./modules/home/home.module').then( m => m.HomePageModule)
+  },
+  {
+    path: 'sign-in',
+    loadChildren: () => import('./modules/auth/sign-in/sign-in.module').then( m => m.SignInPageModule)
   },
   {
     path: 'add-member',
@@ -61,10 +70,6 @@ const routes: Routes = [
     loadChildren: () => import('./modules/measurements/measurements.module').then( m => m.MeasurementsPageModule)
   },
   {
-    path: 'home',
-    loadChildren: () => import('./modules/home/home.module').then( m => m.HomePageModule)
-  },
-  {
     path: 'memberships-list',
     loadChildren: () => import('./modules/membership/memberships-list/memberships-list.module').then( m => m.MembershipsListPageModule)
   },
@@ -106,11 +111,7 @@ const routes: Routes = [
   },
   {
     path: 'notifications',
-    loadChildren: () => import('./modules/notifications/notifications-list/notifications-list.module').then( m => m.NotificationsListPageModule)
-  },
-  {
-    path: 'notification/:id',
-    loadChildren: () => import('./modules/notifications/notification-details/notification-details.module').then( m => m.NotificationDetailsPageModule)
+    loadChildren: () => import('./modules/notifications/notifications.module').then( m => m.NotificationsPageModule)
   },
   {
     path: 'present-members/:time/:order',
@@ -121,20 +122,20 @@ const routes: Routes = [
     loadChildren: () => import('./modules/members/present-members/present-members.module').then( m => m.PresentMembersPageModule)
   },
   {
-    path: 'contact-us',
-    loadChildren: () => import('./modules/contact-us/contact-us.module').then( m => m.ContactUsPageModule)
+    path: 'profile-avatar',
+    loadChildren: () => import('./modules/profile/profile-avatar/profile-avatar.module').then( m => m.ProfileAvatarPageModule)
+  },
+  {
+    path: 'edit-profile',
+    loadChildren: () => import('./modules/profile/edit-profile/edit-profile.module').then( m => m.EditProfilePageModule)
+  },
+  {
+    path: 'change-language',
+    loadChildren: () => import('./modules/profile/change-language/change-language.module').then(m => m.ChangeLanguagePageModule)
   },
   {
     path: 'statistic/:id',
     loadChildren: () => import('./modules/statistic/statistic.module').then( m => m.StatisticPageModule)
-  },
-  {
-    path: 'change-language',
-    loadChildren: () => import('./modules/change-language/change-language.module').then( m => m.ChangeLanguagePageModule)
-  },
-  {
-    path: 'change-team',
-    loadChildren: () => import('./modules/change-team/change-team.module').then( m => m.ChangeTeamPageModule)
   },
   {
     path: 'table-presence/:id',

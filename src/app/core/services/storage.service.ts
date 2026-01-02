@@ -7,12 +7,11 @@ import { Preferences } from '@capacitor/preferences';
 })
 export class StorageService {
 
-  // Save data (handles objects automatically via JSON.stringify)
+  // Save data (objects/arrays will be stringified automatically)
   async set(key: string, value: any): Promise<void> {
-    const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
     await Preferences.set({
       key: key,
-      value: stringValue
+      value: JSON.stringify(value)
     });
   }
 
@@ -24,14 +23,16 @@ export class StorageService {
     try {
       return JSON.parse(value);
     } catch (e) {
-      return value; // Return as raw string if it's not JSON
+      return value; // Return as string if not JSON
     }
   }
 
+  // Remove specific key
   async remove(key: string): Promise<void> {
     await Preferences.remove({ key: key });
   }
 
+  // Clear all storage
   async clear(): Promise<void> {
     await Preferences.clear();
   }

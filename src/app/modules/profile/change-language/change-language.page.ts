@@ -1,10 +1,10 @@
 import { Component, Inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { APP_CONFIG, AppConfig } from 'src/app/core/config/app.config';
-import { Constants } from 'src/app/core/models/contants.models';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { MyEvent } from 'src/app/core/services/myevent.service';
 import { ToastService } from 'src/app/core/services/toast.service';
+import { Constants } from 'src/app/models/contants.models';
 
 // Define the shape of a language object for better type safety
 interface Language {

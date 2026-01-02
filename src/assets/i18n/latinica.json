@@ -233,5 +233,13 @@
   "select_month": "Mjesec",
   "if_membership": "(ako je članarina)",
   "membership_amounts_saved": "Iznosi uplata su dodani.",
-  "edit_measurement": "Izmjena mjerenja"
+  "edit_measurement": "Izmjena mjerenja",
+  "unknown": "Nepoznato",
+  "select_groups": "Izaberi grupe",
+  "membership": "Članarina",
+  "enrollment_date": "Datum upisa",
+  "change_password": "Izmjena lozinke",
+  "general_info": "Osnovne informacije",
+  "measurement_updated_success": "Izmjena merjenja sačuvano",
+  "measurement_deleted_success": "Мjerenjе obrisano"
 }

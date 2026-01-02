@@ -1,4 +1,3 @@
-
 // --- Layout & Centering ---
 .banner {
   /* Center the content vertically and horizontally on the screen */
@@ -48,17 +47,11 @@ ion-item {
   --background: transparent;
   --padding-start: 0;
   --inner-padding-end: 0;
-  --min-height: 2.5rem; /* Adjust height for standard input */
-  font-family: "regular";
-  
-  margin-bottom: 1rem; /* Spacing between inputs */
-  
-  // Apply the custom underline look
+  --min-height: 2.5rem;
+  margin-bottom: 1rem;
   --border-width: 0;
   border-bottom: 2px solid var(--border, #eee);
-  
-  // Set the input background color
-  background-color: var(--secondary, #f0f0f0); 
+  background-color: var(--secondary, #f0f0f0);
   border-radius: 8px;
   // box-shadow bottom
   --box-shadow: 0 0 1px 8px rgba(0, 0, 0, 0.2);
@@ -69,64 +62,61 @@ ion-item {
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;
-    height: 1.25rem; 
-    width: 1.25rem; 
-    color: var(--accent, #e91e63); /* Use pink/magenta for input icons */
+    height: 1.25rem;
+    width: 1.25rem;
+    color: var(--danger, #e91e63); /* Use pink/magenta for input icons */
   }
-  
+
   // Input specific padding to make space for the icon
   ion-input {
-  min-height: 50px;
-    --padding-start: 2rem; 
+    min-height: 50px;
+    --padding-start: 2rem;
     --padding-end: 0;
     --color: var(--foreground, #333);
-    // native input 
-    --padding-start: 2.5rem;
   }
 }
-.main-btn{
-  margin-top: 1rem;
-    --background: var(--primary, #333);
-    --border-radius: var(--radius, 0.5rem);
-  font-family: "medium";
-  width: 90%;
 
-}
-ion-button.forgot{
-  --background: var(--accent, #e91e63);
-  width: 90%;
-  min-height: 50px;
-  --border-radius: var(--radius, 0.5rem);
-  font-family: "medium";
-}
-/* --- Checkbox and Label --- */
 
 ion-checkbox {
-  --size: 1.25rem; 
-  --border-radius: 0.375rem; 
-  --border-width: 2px; 
-  --border-color: var(--ion-color-medium-tint, #999); 
-  --checkbox-background-checked: var(--primary, #364F6B);
-  --border-color-checked: var(--primary, #364F6B);
-  font-family: "medium";
-  
+  --size: 1.25rem;
+  --border-radius: 0.375rem;
+  --border-width: 2px;
+  --border-color: var(--ion-color-medium-tint, #999);
+  --checkbox-background-checked: var(--primary, #567da1);
+  --border-color-checked: var(--primary, #567da1);
   margin-right: 0.75rem;
 }
 
 ion-label {
-    font-size: 0.875rem; 
-    color: var(--muted-foreground, #666);
+  font-size: 0.875rem;
+  color: var(--muted-foreground, #666);
 }
 
-.w100{
+.w100 {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  }
+}
 
-  ion-checkbox::part(container) {
+ion-checkbox::part(container) {
   border-radius: 50%;
   width: 1.25rem;
   height: 1.25rem;
+}
+
+ion-item .password-toggle {
+  width: 25%;
+  height: 100%;
+  z-index: 999999;
+}
+
+ion-item ion-input {
+  --padding-start: 2.5rem;
+  --padding-end: 1rem;
+}
+
+ion-icon[EYE]{
+  left: unset !important;
+
 }

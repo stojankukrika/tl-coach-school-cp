@@ -1,15 +1,3 @@
-// Variables
-$bg-background: #f8fafc;
-$card-bg: #ffffff;
-$text-main: #0f172a;
-$text-muted: #64748b;
-$color-primary: var(--ion-color-primary); // Navy
-$color-secondary: var(--ion-color-secondary); // Teal
-
-ion-content {
-  --background: #{$bg-background};
-}
-
 .content-wrapper {
   padding: 16px;
   display: flex;
@@ -29,7 +17,7 @@ ion-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: $card-bg;
+  background: var(--card-background);
   padding: 16px;
   border-radius: 16px; // rounded-xl
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
@@ -45,7 +33,7 @@ ion-content {
   .lang-name {
     font-size: 1rem;
     font-weight: 500;
-    color: $text-main;
+    color: var(--primary);
   }
 
   // Custom Checkbox
@@ -54,32 +42,21 @@ ion-content {
     height: 24px;
     border-radius: 8px; // rounded-lg
     border: 2px solid #e2e8f0; // muted border
-    background: $bg-background;
+    background: var(--card-background);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
 
     &.checked {
-      background: $color-secondary;
-      border-color: $color-secondary;
-      
+      background: var(--primary);
+      border-color: var(--primary);
+
       ion-icon {
-        color: white;
+        color: var(--primary);
         font-size: 16px;
         font-weight: bold;
       }
     }
   }
-}
-
-// Save Button
-.save-btn {
-  --background: #{$color-primary};
-  --border-radius: 16px; // rounded-xl
-  height: 56px; // h-14
-  font-weight: 600;
-  font-size: 1.05rem;
-  margin-top: 24px; // mt-6
-  box-shadow: 0 4px 10px rgba(var(--ion-color-primary-rgb), 0.2);
 }

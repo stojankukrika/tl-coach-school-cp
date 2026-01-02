@@ -1,57 +1,135 @@
-.paper-logbook {
+ion-content{
+      --padding-bottom: 8px;
+      --padding-end: 8px;
+      --padding-start: 8px;
+      --padding-top: 8px;
+}
+.table-container {
+  width: 100%;
+  overflow: hidden;
   background: #fff;
-  border: 1px solid #ccc;
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
 
-  .log-row {
-    display: flex;
-    align-items: stretch;
-    border-bottom: 1px solid #eee;
-    min-height: 45px;
-
-    &.header {
-      background: #f4f4f4;
-      font-weight: bold;
-      border-bottom: 2px solid #ccc;
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    
+    &::-webkit-scrollbar {
+      display: none; // Hide scrollbar for a cleaner mobile look
     }
   }
+}
 
-  .col-name {
-    flex: 1; // Takes up more space for the name
-    padding: 10px 5px;
-    font-size: 0.85rem;
+.presence-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; // Important for consistent column widths
+
+  th, td {
+    border-bottom: 1px solid #f0f0f0;
+    text-align: center;
+    height: 60px;
+    padding: 0;
+  }
+
+  th {
+    background-color: #f8f9fa;
+    color: #555;
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-width: 50px;
+  }
+
+  // Sticky Column Styling
+  .sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: white;
+    min-width: 110px;
+    width: 110px;
+    text-align: left;
     border-right: 1px solid #eee;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
   }
 
-  .days-container {
-    flex: 3; // Space for the attendance boxes
-    display: flex;
-    justify-content: space-around;
-  }
-
-  .day-cell {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid #f0f0f0;
-    font-size: 0.7rem;
-
-    &.status-box {
-      cursor: pointer;
-      transition: background 0.2s;
-      
-      &.present { background-color: rgba(45, 211, 111, 0.2); } // Light Green
-      &.absent { background-color: rgba(235, 68, 90, 0.2); }   // Light Red
-
-      ion-icon { font-size: 1rem; }
+  // Sliding Item Integration
+  .sliding-cell {
+    padding: 0 !important;
+    
+    ion-item-sliding {
+      height: 100%;
+      width: 100%;
     }
+
+    .member-name-item {
+      --background: transparent;
+      --padding-start: 0;
+      --inner-padding-end: 0;
+      height: 60px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      z-index: 1000;
+    }
+
+    ion-item-option {
+      width: 60px;
+      ion-icon {
+        font-size: 24px;
+      }
+    }
+  }
+
+  // Status Icons
+  .status-cell {
+    .status-icon {
+      font-size: 20px;
+      &.present { color: var(--ion-color-success); font-weight: bold; }
+      &.absent { color: var(--ion-color-danger); font-weight: bold; }
+      &.sick { color: var(--ion-color-warning); }
+      &.none { color: #e0e0e0; }
+    }
+  }
+
+  // Footer / Totals
+  tfoot {
+    tr {
+      background: #fdfdfd;
+      td {
+        border-top: 2px solid #eee;
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+// Footer Controls
+.scroll-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 15px;
+  background: var(--ion-color-primary);
+  color: white;
+
+  ion-button {
+    --color: white;
+  }
+
+  .scroll-hint {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+ion-item-sliding {
+  // Forces the component to ignore parent padding during animation
+  margin: 0;
+  padding: 0;
+  
+  // Ensures the sliding buttons match the row height exactly
+  ion-item-options {
+    height: 100%;
+    border-bottom: 0;
   }
 }

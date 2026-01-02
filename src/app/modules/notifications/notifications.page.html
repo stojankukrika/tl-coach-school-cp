@@ -1,0 +1,152 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        text=""
+        icon="chevron-back-outline"
+        defaultHref="home">
+      </ion-back-button>
+    </ion-buttons>
+
+    <ion-title>{{ 'notifications' | translate }}</ion-title>
+
+    @if (showCreateNotification()) {
+      <ion-buttons slot="end">
+        <ion-button (click)="create()">
+          <ion-icon
+            name="add-circle-outline"
+            slot="icon-only"
+            color="primary">
+          </ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg_color">
+
+  @if (!show()) {
+    <!-- Skeleton loading -->
+    <div class="list-container">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="skeleton-card">
+          <ion-item lines="none">
+            <ion-skeleton-text
+              slot="start"
+              animated
+              style="width: 40px; height: 40px; border-radius: 50%;">
+            </ion-skeleton-text>
+
+            <ion-label>
+              <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
+              <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+            </ion-label>
+          </ion-item>
+        </div>
+      }
+    </div>
+  }
+
+  @if (show() && notifications().length > 0) {
+    <!-- Notifications list -->
+    <div class="list-container">
+      <ion-accordion-group (ionChange)="onAccordionChange($event)">
+
+        @for (item of notifications(); track item.id) {
+          <ion-accordion
+            [value]="item.id"
+            class="notification-accordion animate__animated animate__fadeInUp">
+
+            <!-- Header -->
+            <ion-item slot="header" lines="none" class="accordion-header">
+
+              @if (item.read_at === null) {
+                <div class="icon-box unread" slot="start">
+                  <ion-icon name="alert-circle-outline"></ion-icon>
+                </div>
+              } @else {
+                <div class="icon-box read" slot="start">
+                  <ion-icon name="checkmark-circle-outline"></ion-icon>
+                </div>
+              }
+
+              <ion-label class="ion-text-wrap">
+                <h2
+                  class="title-text"
+                  [class.unread-text]="item.read_at === null">
+                  {{ item.title }}
+                </h2>
+                <p class="date-text">
+                  {{ item.created_at | date:'short' }}
+                </p>
+              </ion-label>
+            </ion-item>
+
+            <!-- Content -->
+            <div slot="content" class="ion-padding accordion-content">
+
+              @if (item.isLoadingDetails) {
+                <div class="ion-text-center py-2">
+                  <ion-spinner name="dots" color="primary"></ion-spinner>
+                </div>
+              } @else {
+                <div class="animate__animated animate__fadeIn">
+                  <div
+                    class="details-text"
+                    [innerHTML]="
+                      item.content
+                      || item.data?.message
+                      || item.body
+                      || item.message
+                      || ('no_details' | translate)
+                    ">
+                  </div>
+
+                  @if (item.event_id) {
+                    <div class="ion-text-end ion-margin-top">
+                      <ion-button
+                        size="small"
+                        fill="outline"
+                        shape="round"
+                        (click)="showEvent(item)">
+                        {{ 'view_event' | translate }}
+                        <ion-icon
+                          name="calendar-outline"
+                          slot="end">
+                        </ion-icon>
+                      </ion-button>
+                    </div>
+                  }
+                </div>
+              }
+
+            </div>
+          </ion-accordion>
+        }
+
+      </ion-accordion-group>
+
+      <ion-infinite-scroll
+        threshold="10%"
+        (ionInfinite)="onIonInfinite($event)">
+        <ion-infinite-scroll-content
+          loadingSpinner="bubbles">
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+    </div>
+  }
+
+  @if (show() && notifications().length === 0) {
+    <!-- Empty state -->
+    <div class="empty-state ion-text-center">
+      <ion-icon
+        name="notifications-off-outline"
+        color="medium"
+        size="large">
+      </ion-icon>
+      <p>{{ 'no_results' | translate }}</p>
+    </div>
+  }
+
+</ion-content>

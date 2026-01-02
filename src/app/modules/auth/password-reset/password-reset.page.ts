@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -15,15 +15,12 @@ interface ResetData {
   styleUrls: ['./password-reset.page.scss'],
   standalone:false
 })
-export class PasswordResetPage implements OnInit {
+export class PasswordResetPage{
 
-  // --- Services Injected via Angular's 'inject' function ---
   public authService = inject(AuthService);
   private navCtrl = inject(NavController);
   public toastService = inject(ToastService);
   public translate = inject(TranslateService);
-
-  // --- Signals for state management ---
 
   // UI state flag (to disable button during API call)
   public clicked: WritableSignal<boolean> = signal(false);
@@ -32,16 +29,6 @@ export class PasswordResetPage implements OnInit {
   public data: WritableSignal<ResetData> = signal({
     email: null
   });
-
-  constructor() {
-    // Initial signal values are set above
-  }
-
-  ngOnInit(): void {
-    // Since the signal is initialized above, we don't need logic here unless 
-    // we want to ensure data.email is an empty string instead of null for forms.
-    // this.data.set({ email: '' }); 
-  }
 
   // Validation logic
   validateInputs(): boolean {
@@ -60,9 +47,7 @@ export class PasswordResetPage implements OnInit {
       this.authService.resetPassword(this.data()).subscribe(
         // Success handler
         () => {
-          // Navigate to sign-in on successful reset
           this.navCtrl.navigateRoot(['./sign-in']);
-          // Optional: Present success toast here if the server response doesn't handle it
         },
         // Error handler
         (data: any) => {
@@ -79,12 +64,9 @@ export class PasswordResetPage implements OnInit {
           }
         });
     } else {
-      // Optional: Present a validation toast if needed
-      // this.toastService.presentToast(this.translate.instant('please_enter_email'));
+      this.toastService.presentToast(this.translate.instant('form_not_filled_right'));
     }
   }
-
-  // Navigation back to sign-in page
   back() {
     this.navCtrl.navigateBack(['sign-in']);
   }

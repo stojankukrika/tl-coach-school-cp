@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {HttpService} from './http.service';
 
@@ -6,19 +6,21 @@ import {HttpService} from './http.service';
   providedIn: 'root'
 })
 export class GroupMemberService {
-  constructor(private httpService: HttpService) {
+
+  private readonly httpService = inject(HttpService);
+  constructor() {
   }
 
   index(data:any): Observable<any> {
     return this.httpService.get('team_group_members', data);
   }
 
-  all(data:any): Observable<any> {
-    return this.httpService.get('team_group_members/all', data);
-  }
-
   allGroups(data:any): Observable<any> {
     return this.httpService.get('team_groups/groups', data);
+  }
+
+  teamMemberships(data:any): Observable<any> {
+    return this.httpService.get('team_groups/team_memberships', data);
   }
 
   create(data:any): Observable<any> {
@@ -42,7 +44,10 @@ export class GroupMemberService {
   }
 
   delete(data:any): Observable<any> {
-    return this.httpService.get('team_group_members/delete', data);
+    return this.httpService.get('team_group_members/delete_from_group', data);
   }
 
+  addMemberIntoGroup(data:any): Observable<any> {
+    return this.httpService.put('team_group_members/add_member_into_group', data);
+  }
 }
