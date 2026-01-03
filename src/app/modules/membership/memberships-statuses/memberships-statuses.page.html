@@ -36,32 +36,35 @@
             <h4 class="centered-title">{{ 'paid_memberships' | translate }}</h4>
 
             <ion-item lines="none" class="year-selector">
-              <ion-label position="stacked">{{ 'year' | translate }}</ion-label>              <ion-select [value]="year()" (ionChange)="year.set($event.detail.value); changedYear()">
-              @for (item of years(); track item.year) {
-                <ion-select-option [value]="item.year">{{ item.year }}</ion-select-option>
-              }              </ion-select>
+              <ion-label>{{ 'year' | translate }}</ion-label>
+              <ion-select [value]="year()" (ionChange)="year.set($event.detail.value); changedYear()">
+                @for (item of years(); track item.year) {
+                  <ion-select-option [value]="item.year">{{ item.year }}</ion-select-option>
+                }              </ion-select>
             </ion-item>
 
-            <ion-list lines="none">              @for (item of paidMemberships(); track item.month) {
-              <ion-item class="animate__animated animate__fadeInUp status-item">
-                <div class="item_inner">
-                  <h3 class="status-header">
-                    {{ 'month_' + item.month | translate }}
-                    <span [class]="item.status">{{ 'status_' + item.status | translate }}</span>
-                  </h3>
-                  <div class="button-group">
-                    <ion-button class="paid" size="small" (click)="changeStatus(item.month, 'paid')">
-                      <ion-icon name="checkmark-done-circle-outline"></ion-icon>
-                    </ion-button>
-                    <ion-button class="exempt" size="small" (click)="changeStatus(item.month, 'exempt')">
-                      <ion-icon name="notifications-off-outline"></ion-icon>
-                    </ion-button>
-                    <ion-button class="unpaid" size="small" (click)="changeStatus(item.month, 'unpaid')">
-                      <ion-icon name="remove-circle-outline"></ion-icon>
-                    </ion-button>
-                  </div>                  </div>
-              </ion-item>
-            }
+            <ion-list lines="none">
+              @for (item of paidMemberships(); track item.month) {
+                <ion-item class="animate__animated animate__fadeInUp status-item">
+                  <div class="item_inner">
+                    <h3 class="status-header">
+                      {{ 'month_' + item.month | translate }}
+                      <span [class]="item.status">{{ 'status_' + item.status | translate }}</span>
+                    </h3>
+                    <div class="button-group">
+                      <ion-button class="paid" size="small" (click)="changeStatus(item.month, 'paid')">
+                        <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+                      </ion-button>
+                      <ion-button class="exempt" size="small" (click)="changeStatus(item.month, 'exempt')">
+                        <ion-icon name="notifications-off-outline"></ion-icon>
+                      </ion-button>
+                      <ion-button class="unpaid" size="small" (click)="changeStatus(item.month, 'unpaid')">
+                        <ion-icon name="remove-circle-outline"></ion-icon>
+                      </ion-button>
+                    </div>
+                  </div>
+                </ion-item>
+              }
             </ion-list>
             <hr>
           </div>
@@ -70,17 +73,23 @@
         <!-- Payment History -->
         <h4 class="centered-title">{{ 'payments' | translate }}</h4>
         <ion-list>
-          @for (item of membershipPayments(); track $index) {            <ion-card class="payment-card">
-            <ion-item lines="full">
-              <ion-label>
-                <p><strong>{{ 'date' | translate }}:</strong> {{ item.date }}</p>
-                <p><strong>{{ 'payment_method' | translate }}:</strong> {{ 'payment_method_' + item.payment_method | translate }}</p>
-                <p><strong>{{ 'amount' | translate }}:</strong> {{ item.amount }} {{ item.currency?.iso_code }}</p>
-                @if (item.name) { <p><strong>{{ 'description' | translate }}:</strong> {{ item.name }}</p> }
-                @if (item.payer_name) { <p><strong>{{ 'payer_name' | translate }}:</strong> {{ item.payer_name }}</p> }
-              </ion-label>
-            </ion-item>
-          </ion-card>
+          @for (item of membershipPayments(); track $index) {
+            <ion-card class="payment-card">
+              <ion-item lines="full">
+                <ion-label>
+                  <p><strong>{{ 'date' | translate }}:</strong> {{ item.date }}</p>
+                  <p><strong>{{ 'payment_method' | translate }}
+                    :</strong> {{ 'payment_method_' + item.payment_method | translate }}</p>
+                  <p><strong>{{ 'amount' | translate }}:</strong> {{ item.amount }} {{ item.currency?.iso_code }}</p>
+                  @if (item.name) {
+                    <p><strong>{{ 'description' | translate }}:</strong> {{ item.name }}</p>
+                  }
+                  @if (item.payer_name) {
+                    <p><strong>{{ 'payer_name' | translate }}:</strong> {{ item.payer_name }}</p>
+                  }
+                </ion-label>
+              </ion-item>
+            </ion-card>
           }
         </ion-list>
       }

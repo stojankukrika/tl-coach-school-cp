@@ -14,11 +14,11 @@
 
   <div class="content-wrapper animate__animated animate__fadeIn" *ngIf="!isLoading() && teamMember()">
     <div class="photo-container">
-      
+
       <div class="avatar-frame" (click)="pickImage()">
         <img *ngIf="teamMember().avatar" [src]="teamMember().avatar_url" class="member-photo" />
         <img *ngIf="!teamMember().avatar" [src]="teamMember().photo" class="member-photo" />
-        
+
         <div class="overlay-icon">
           <ion-icon name="camera"></ion-icon>
         </div>
@@ -26,14 +26,13 @@
 
       <div class="info-text">
         <h3>{{ teamMember().first_name }} {{ teamMember().last_name }}</h3>
-        <p>{{ 'photo_resolution_info' | translate }}</p>
       </div>
 
       <div class="action-stack">
-        <ion-button 
-          expand="block" 
-          fill="outline" 
-          class="btn-pick" 
+        <ion-button
+          expand="block"
+          fill="outline"
+          class="btn-pick"
           (click)="pickImage()">
           <ion-icon slot="start" name="camera-outline"></ion-icon>
           {{ 'take_photo' | translate }}
@@ -45,13 +44,13 @@
 </ion-content>
 
 <ion-footer class="ion-no-border ion-padding-start ion-padding-end">
-  <ion-button 
-    expand="block" 
-    shape="round" 
+  <ion-button
+    expand="block"
+    shape="round"
     class="btn-save"
-    (click)="save()" 
+    (click)="save()"
     [disabled]="isSubmitting() || isLoading()">
-    
+
     <ion-spinner name="crescent" *ngIf="isSubmitting()" slot="start"></ion-spinner>
     {{ 'save' | translate }}
   </ion-button>
