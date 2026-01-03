@@ -1,82 +1,65 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
 import { AuthConstants } from 'src/app/core/config/auth-constants';
-import { GroupTrainingService } from 'src/app/core/services/group-training.service';
 import { ToastService } from 'src/app/core/services/toast.service';
-import { StorageService } from 'src/app/core/services/storage.service';
+import { TranslateService } from '@ngx-translate/core';
+import { GroupTrainingService } from 'src/app/core/services/group-training.service';
 
 @Component({
   selector: 'app-training-plan',
   templateUrl: './training-plan.page.html',
   styleUrls: ['./training-plan.page.scss'],
-  standalone: false,
+  standalone: false
 })
-export class TrainingPlanPage implements OnInit {
-  // --- Services ---
+export class TrainingPlanPage {
+  // Injekcija servisa
   private activatedRoute = inject(ActivatedRoute);
   private navCtrl = inject(NavController);
-  private router = inject(Router);
+  private route = inject(Router);
   private groupTrainingService = inject(GroupTrainingService);
   private toastService = inject(ToastService);
-  private translate = inject(TranslateService);
-  private storage = inject(StorageService);
+  public translate = inject(TranslateService);
 
-  // --- Signals (State) ---
-  public show = signal(false);
-  public group = signal<any>(null);
-  public training = signal<any>(null);
-  public team_training_notes = signal<any[]>([]);
-  public order = signal<number | null>(null);
-  public clicked = signal(false);
-  public readonly = signal(true);
-  public viewType = signal<string | null>(null);
+  // Signals za stanje
+  show = signal<boolean>(false);
+  training = signal<any>(null);
+  teamTrainingNotes = signal<any[]>([]);
+  clicked = signal<boolean>(false);
+  readonly = signal<boolean>(true);
+  viewType = signal<string | null>(null);
 
-  private trainingId: string | null = null;
+  // Proste varijable za parametre
+  id: any;
+  order = signal<number | null>(null);
+  group: any;
 
-  ngOnInit() {}
-
-  async ionViewWillEnter() {
+  ionViewWillEnter() {
     this.show.set(false);
 
-    // REFACTORED: Loading ROLE and GROUP from Native Storage (Async)
-    const [role, storedGroup] = await Promise.all([
-      this.storage.get(AuthConstants.ROLE),
-      this.storage.get(AuthConstants.GROUP)
-    ]);
-
-    this.group.set(storedGroup);
-    
-    // Set permissions based on native role string
+    // Provjera permisija
+    const role = localStorage.getItem(AuthConstants.ROLE);
     this.readonly.set(!(role === 'management' || role === 'top_coach'));
 
     this.activatedRoute.params.subscribe(params => {
-      this.trainingId = params['id'] ?? null;
+      this.id = params['id'] ?? null;
       this.order.set(params['order'] ?? null);
+      this.group = JSON.parse(localStorage.getItem(AuthConstants.GROUP) || '{}');
 
-      if (this.group() && this.trainingId) {
-        this.loadTrainingData();
-      }
+      this.loadData();
     });
   }
 
-  private loadTrainingData() {
-    this.groupTrainingService.showTraining({
-      group_id: this.group().id,
-      id: this.trainingId
-    }).subscribe({
-      next: (data) => {
-        // Add coach_notes property if missing
+  private loadData() {
+    this.groupTrainingService.showTraining({ group_id: this.group.id, id: this.id }).subscribe({
+      next: (data: any) => {
+        // Postavljamo coach_notes na prazno ako već ne postoje
         const trainingData = data.team_training;
-        trainingData.coach_notes = trainingData.coach_notes ?? '';
-        
+        if (!trainingData.coach_notes) trainingData.coach_notes = '';
+
         this.training.set(trainingData);
-        this.team_training_notes.set(data.team_training_notes || []);
+        this.teamTrainingNotes.set(data.team_training_notes || []);
         this.show.set(true);
-      },
-      error: (err) => {
-        this.toastService.presentToast(this.translate.instant('error_loading_data'));
       }
     });
   }
@@ -85,40 +68,44 @@ export class TrainingPlanPage implements OnInit {
     this.viewType.set(vt);
   }
 
-  /** Update signal values from template */
-  updateNote(field: 'note' | 'coach_notes', value: string) {
-    this.training.update(prev => ({ ...prev, [field]: value }));
+  // Pomoćne funkcije za ažuriranje podataka unutar signala (ngModel alternativa za signale)
+  updateNote(val: string) {
+    this.training.update(t => ({ ...t, note: val }));
+  }
+
+  updateCoachNote(val: string) {
+    this.training.update(t => ({ ...t, coach_notes: val }));
   }
 
   save() {
-    const t = this.training();
-    if (!t) return;
+    const currentTraining = this.training();
+    if (!currentTraining) return;
 
     this.clicked.set(true);
     this.groupTrainingService.updateNote({
-      group_id: this.group().id,
-      id: t.id,
-      note: t.note,
-      coach_notes: t.coach_notes
+      group_id: this.group.id,
+      id: currentTraining.id,
+      note: currentTraining.note,
+      coach_notes: currentTraining.coach_notes
     }).subscribe({
       next: () => {
         this.clicked.set(false);
         this.navCtrl.pop();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.clicked.set(false);
-        this.toastService.presentToast(err?.error?.message || 'Error saving');
+        this.toastService.presentToast(err.error?.message || 'Error saving');
       }
     });
   }
 
   presentMembers() {
     const t = this.training();
-    this.router.navigate(['./present-members', t.date_formatted + 'T' + t.time_from, this.order()]);
+    this.route.navigate(['./present-members', `${t.date_formatted}T${t.time_from}`, this.order()]);
   }
 
   memberNote() {
     const t = this.training();
-    this.router.navigate(['./note-members', t.date_formatted + 'T' + t.time_from, this.order()]);
+    this.route.navigate(['./note-members', `${t.date_formatted}T${t.time_from}`, this.order()]);
   }
 }

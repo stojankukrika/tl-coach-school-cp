@@ -242,5 +242,12 @@
   "change_password": "Change password",
   "general_info": "General info",
   "measurement_updated_success": "Measurement updated successfully.",
-  "measurement_deleted_success": "Measurement deleted successfully."
+  "measurement_deleted_success": "Measurement deleted successfully.",
+  "payment_details": "Payment details",
+  "membership_period": "Membership period",
+  "payer_info": "Payer info",
+  "training": "Training",
+  "previous_notes": "Previous notes",
+  "no_notes": "No notes",
+  "choose_file": "Choose file",
 }

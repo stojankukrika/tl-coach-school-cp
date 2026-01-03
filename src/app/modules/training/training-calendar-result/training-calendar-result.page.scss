@@ -1,0 +1,94 @@
+.bg_color {
+  --background: var(--ion-color-light-tint);
+}
+
+.info-card {
+  margin: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+
+  ion-card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .date-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+}
+
+.main-card {
+  margin: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.custom-item {
+  --background: #fff;
+  --padding-start: 16px;
+  margin-bottom: 5px;
+
+  ion-label {
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+  }
+}
+
+.members-grid-container {
+  margin-top: 15px;
+  background: #fff;
+
+  .grid-header {
+    background: var(--ion-color-light);
+    color: var(--ion-color-dark);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 5px;
+  }
+
+  .member-row {
+    border-bottom: 0.5px solid var(--ion-color-light);
+    align-items: center;
+    padding: 5px 0;
+
+    &.is-readonly {
+      background: var(--ion-color-light-tint);
+      opacity: 0.8;
+
+      .value-input {
+        --color: var(--ion-color-medium);
+        font-weight: 700;
+      }
+    }
+  }
+
+  .member-info {
+    display: flex;
+    flex-direction: column;
+    padding-left: 5px;
+
+    .m-number { font-size: 0.7rem; color: var(--ion-color-medium); }
+    .m-name { font-size: 0.95rem; font-weight: 600; }
+    .m-date { font-size: 0.75rem; color: var(--ion-color-step-600); }
+  }
+
+  .value-input {
+    --background: var(--ion-color-light);
+    --padding-start: 8px;
+    --border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    height: 38px;
+  }
+}
+
+.save-btn {
+  --border-radius: 10px;
+  --height: 50px;
+  font-weight: 600;
+  margin-top: 10px;
+}

@@ -1,52 +1,33 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import { AuthConstants } from 'src/app/core/config/auth-constants';
 import { TrainingCalendarsServiceService } from 'src/app/core/services/training-calendars-service.service';
-import { StorageService } from 'src/app/core/services/storage.service';
 
 @Component({
   selector: 'app-training-calendars',
   templateUrl: './training-calendars.page.html',
   styleUrls: ['./training-calendars.page.scss'],
-  standalone: false,
+  standalone: false
 })
-export class TrainingCalendarsPage implements OnInit {
-  // --- Services ---
+export class TrainingCalendarsPage {
+  // Servisi
   private router = inject(Router);
   private trainingService = inject(TrainingCalendarsServiceService);
-  private storage = inject(StorageService);
 
-  // --- Signals (State) ---
-  public group = signal<any>(null);
-  public page = signal<number>(0);
-  public show = signal<boolean>(false);
-  public trainingCalendars = signal<any[]>([]);
+  // Signals za stanje
+  show = signal<boolean>(false);
+  trainingCalendars = signal<any[]>([]);
+  page = signal<number>(0);
 
-  // Local object for monthly marking logic
-  public monthlyMark = {
-    member_id: null,
-    mark: null,
-    comment: null,
-    team_group_training_calendar_id: null,
-    team_group_id: null
-  };
+  private group: any;
 
-  ngOnInit() {}
-
-  async ionViewWillEnter() {
-    // Reset state on entry
+  ionViewWillEnter() {
     this.show.set(false);
     this.trainingCalendars.set([]);
     this.page.set(0);
-
-    // REFACTORED: Loading Group from Native Storage (Async)
-    const storedGroup = await this.storage.get(AuthConstants.GROUP);
-    this.group.set(storedGroup);
-
-    if (this.group()) {
-      this.loadingItems(null);
-    }
+    this.group = JSON.parse(localStorage.getItem(AuthConstants.GROUP) || '{}');
+    this.loadingItems(null);
   }
 
   showTrainingCalendar(item: any) {
@@ -57,39 +38,37 @@ export class TrainingCalendarsPage implements OnInit {
     this.router.navigate(['./training-calendar-video', item.id]);
   }
 
-  private loadingItems(ev: any) {
-    // Increment page signal
+  private loadingItems(ev: InfiniteScrollCustomEvent | null) {
     this.page.update(p => p + 1);
 
     this.trainingService.index({
-      team_group_id: this.group().id,
+      team_group_id: this.group.id,
       page: this.page()
     }).subscribe({
-      next: (data) => {
-        const newItems = data.training_calendars.data;
-        
-        // Update list signal by appending new items
-        this.trainingCalendars.update(current => [...current, ...newItems]);
-        
+      next: (res: any) => {
+        const newData = res.training_calendars.data;
+
+        // Dodajemo nove podatke u postojeći niz unutar signala
+        this.trainingCalendars.update(current => [...current, ...newData]);
+
         this.show.set(true);
 
         if (ev) {
-          (ev as InfiniteScrollCustomEvent).target.complete();
-          
-          // Optional: Disable infinite scroll if no more data
-          if (newItems.length === 0) {
-             (ev as InfiniteScrollCustomEvent).target.disabled = true;
+          ev.target.complete();
+          // Opcionalno: Isključi infinite scroll ako nema više podataka
+          if (newData.length === 0) {
+            ev.target.disabled = true;
           }
         }
       },
       error: () => {
         this.show.set(true);
-        if (ev) (ev as InfiniteScrollCustomEvent).target.complete();
+        if (ev) ev.target.complete();
       }
     });
   }
 
   onIonInfinite(ev: any) {
-    this.loadingItems(ev);
+    this.loadingItems(ev as InfiniteScrollCustomEvent);
   }
 }

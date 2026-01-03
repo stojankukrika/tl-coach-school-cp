@@ -1,100 +1,50 @@
-$bg-background: #f8fafc;
-$card-bg: #ffffff;
-$text-main: #0f172a;
-$text-muted: #64748b;
-$border-color: #e2e8f0;
-$primary-navy: #5b7da1; 
-$success-green: #10b981;
-$error-red: #f43f5e;
-
-.bg_color { --background: #{$bg-background}; }
-.content-wrapper { padding: 16px; }
-
-// Reuse your info-card from previous pages
-.info-card {
-  background: $card-bg;
-  border-radius: 12px;
-  border: 1px solid $border-color;
-  padding: 12px 16px;
-  margin-bottom: 24px;
+.bg_color {
+  --background: var(--ion-color-light-tint);
 }
 
-.section-divider {
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: $text-muted;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  margin: 20px 0 12px 4px;
-  
-  &.success { color: $success-green; }
-  &.danger { color: $error-red; }
-}
-
-// Sliding List Customization
-.custom-sliding-list {
+.transparent-list {
   background: transparent;
-  padding: 0;
+  padding: 0 10px;
 }
 
-.attendance-slider {
-  margin-bottom: 8px;
-  border-radius: 14px;
-  overflow: hidden; // Keeps options inside the curve
-}
-
-.member-attendance-item {
-  --background: #{$card-bg};
+.transparent-item {
+  --background: #ffffff;
   --padding-start: 16px;
-  --padding-end: 16px;
-  --inner-padding-end: 0;
-  border: 1px solid $border-color;
-  border-radius: 14px;
-  min-height: 70px;
+  --inner-padding-end: 16px;
+  --border-radius: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 
-  .status-indicator {
-    width: 4px;
-    height: 30px;
-    border-radius: 2px;
-    margin-right: 12px;
-    &.present { background: $success-green; }
-    &.not_present { background: $error-red; }
-  }
-
-  .member-info {
-    h3 {
-      font-weight: 700;
-      color: $text-main;
-      margin: 0;
-      font-size: 0.95rem;
-    }
-    p {
-      margin: 2px 0 0;
-      font-size: 0.75rem;
-      color: $text-muted;
-      font-weight: 600;
-    }
-  }
-
-  .swipe-hint {
-    color: $border-color;
-    font-size: 1.2rem;
+  .small-text {
+    font-size: 0.95rem;
+    font-weight: 500;
   }
 }
 
-// Option Buttons (Sliding Trays)
-.opt-success {
-  --background: #{$success-green};
-  --color: white;
-  font-size: 1.5rem;
+ion-item-sliding {
+  margin-bottom: 8px;
+  // Da bi zaobljeni uglovi radili na sliding itemima
+  background: transparent;
 }
 
-.opt-danger {
-  --background: #{$error-red};
-  --color: white;
-  font-size: 1.5rem;
+.category-divider {
+  --min-height: 40px;
+  border-radius: 8px;
+  margin: 15px 0 10px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-// Confirmed states
-.confirmed { --background: #f0fdf4; border-color: rgba($success-green, 0.2); }
-.absent { --background: #fef2f2; border-color: rgba($error-red, 0.2); }
+.info-header {
+  margin: 10px;
+  --background: var(--ion-color-light-shade);
+  --border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+ion-item-option[expandable] {
+  ion-icon {
+    font-size: 2rem;
+  }
+}

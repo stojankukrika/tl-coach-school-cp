@@ -1,4 +1,4 @@
-<ion-header class="safe-area-top ion-no-border">
+<ion-header class="safe-area-top">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
@@ -8,68 +8,62 @@
 </ion-header>
 
 <ion-content class="bg_color">
-  <div class="content-wrapper">
-    
-    <div class="info-card date-selector-card">
-      <div class="info-row no-border">
-        <span class="label">{{ 'select_month' | translate }}</span>
-        <div class="date-wrapper">
-          <ion-datetime-button datetime="month-picker"></ion-datetime-button>
-        </div>
-      </div>
-    </div>
+  <ion-item lines="full" class="date-selector">
+    <ion-label>{{ 'date' | translate }}</ion-label>
+    <ion-datetime
+      presentation="month-year"
+      [value]="selectedDate()"
+      (ionChange)="selectedDate.set($any($event).detail.value); fetchData()">
+    </ion-datetime>
+  </ion-item>
 
-    <div *ngIf="isLoading()" class="ion-padding ion-text-center">
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
-    </div>
+  <div class="table-scroll-wrapper">
+    <ion-grid [fixed]="true" class="custom-presence-grid">
+      <ion-row class="header-row">
+        <ion-col size="4" class="sticky-col">
+          <strong>{{ 'full_name' | translate }}</strong>
+        </ion-col>
+        @for (training of trainingDays(); track training.id; let i = $index) {
+          <ion-col class="ion-text-center day-col">
+            <strong>{{ i + 1 }}</strong>
+          </ion-col>
+        }
+      </ion-row>
 
-    <div class="presence-container animate__animated animate__fadeIn" *ngIf="!isLoading()">
-      <div class="table-responsive">
-        <table class="presence-table">
-          <thead>
-            <tr>
-              <th class="sticky-col">{{ 'full_name' | translate }}</th>
-              <th *ngFor="let training of trainingDays(); let i = index">
-                <span class="day-num">{{ i + 1 }}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let member of members()" class="member-row">
-              <td class="sticky-col name-cell" (click)="memberDetails(member)">
-                {{ member.first_name }} {{ member.last_name }}
-              </td>
-              <td *ngFor="let status of member.presence" class="status-cell">
-                <div class="status-indicator" [ngClass]="status">
-                  <ion-icon *ngIf="status === 'present'" name="checkmark-outline"></ion-icon>
-                  <ion-icon *ngIf="status === 'not_present'" name="close-outline"></ion-icon>
-                  <ion-icon *ngIf="status !== 'present' && status !== 'not_present' && status !== '&nbsp;'" name="help-outline"></ion-icon>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr class="footer-row">
-              <td class="sticky-col">{{ 'total' | translate }}</td>
-              <td *ngFor="let training of trainingDays()" class="ion-text-center">
-                {{ totalPresences()[training.id] || 0 }}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
+      <!-- Redovi sa članovima -->
+      @for (member of members(); track member.member_id) {
+        <ion-row class="member-row">
+          <ion-col size="4" class="sticky-col name-cell" (click)="memberDetails(member)">
+            <div class="status-indicator">
+              {{ member.first_name }} {{ member.last_name }}
+            </div>
+          </ion-col>
 
+          @for (status of member.presence; track $index) {
+            <ion-col class="ion-text-center status-col">
+              @if (status === 'present') {
+                <ion-icon name="add-circle" color="success"></ion-icon>
+              } @else if (status === 'not_present') {
+                <ion-icon name="remove-circle" color="danger"></ion-icon>
+              } @else {
+                <ion-icon name="help-circle-outline" color="medium" style="opacity: 0.3;"></ion-icon>
+              }
+            </ion-col>
+          }
+        </ion-row>
+      }
+
+      <!-- Footer Red: Ukupno prisutnih -->
+      <ion-row class="footer-row">
+        <ion-col size="4" class="sticky-col">
+          <strong>{{ 'total' | translate }}</strong>
+        </ion-col>
+        @for (training of trainingDays(); track training.id) {
+          <ion-col class="ion-text-center total-cell">
+            <strong>{{ totalPresences()[training.id] || 0 }}</strong>
+          </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
   </div>
-
-  <ion-modal [keepContentsMounted]="true">
-    <ng-template>
-      <ion-datetime 
-        id="month-picker" 
-        presentation="month-year" 
-        [value]="selectedDate()"
-        (ionChange)="selectedDate.set($event.detail.value); fetchData()">
-      </ion-datetime>
-    </ng-template>
-  </ion-modal>
 </ion-content>

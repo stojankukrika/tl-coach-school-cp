@@ -1,4 +1,4 @@
-<ion-header class="safe-area-top ion-no-border">
+<ion-header class="safe-area-top">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
@@ -8,90 +8,81 @@
 </ion-header>
 
 <ion-content class="bg_color">
-  <div *ngIf="isLoading()" class="ion-padding ion-text-center">
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-  </div>
+  @if (show()) {
+    <ion-item lines="none" class="info-header">
+      <ion-label>
+        {{ 'present_members_for' | translate }} <strong>{{ order() }}</strong>
+      </ion-label>
+    </ion-item>
 
-  <div class="content-wrapper animate__animated animate__fadeIn" *ngIf="!isLoading()">
-    
-    <div class="info-card status-card">
-      <div class="info-row no-border">
-        <span class="label">{{ 'session' | translate }}</span>
-        <span class="value bold">{{ order() }}</span>
-      </div>
-    </div>
+    <!-- Lista Članova na čekanju (Pending) -->
+    <ion-list class="transparent-list">
+      <ion-list-header>
+        <ion-label>{{ 'unknown' | translate }}</ion-label>
+      </ion-list-header>
 
-    <div class="section-container" *ngIf="pendingMembers().length > 0">
-      <div class="section-divider">{{ 'pending' | translate }}</div>
-      
-      <ion-list class="custom-sliding-list">
-        <ion-item-sliding *ngFor="let item of pendingMembers()" class="attendance-slider">
-          <ion-item-options side="start">
-            <ion-item-option class="opt-success" (click)="presence(item, 1)">
-              <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
+      @for (member of members(); track member.id) {
+        @if (!hideMe()[member.id]) {
+          <ng-container *ngTemplateOutlet="memberSliding; context: { $implicit: member }"></ng-container>
+        }
+      } @empty {
+        <ion-item lines="none">
+          <ion-label class="ion-text-center">{{ 'no_members_found' | translate }}</ion-label>
+        </ion-item>
+      }
+    </ion-list>
 
-          <ion-item lines="none" class="member-attendance-item">
-            <div class="member-info">
-              <h3>{{ item.first_name }} {{ item.last_name }}</h3>
-              <p>#{{ item.membership_number }}</p>
-            </div>
-            <ion-icon name="swap-horizontal-outline" slot="end" class="swipe-hint"></ion-icon>
-          </ion-item>
+    <!-- Sekcija: PRISUTNI -->
+    @if (presentMembers().length > 0) {
+      <ion-list class="transparent-list">
+        <ion-item color="success" class="category-divider" lines="none">
+          <ion-label>{{ 'present' | translate }} ({{ presentMembers().length }})</ion-label>
+        </ion-item>
 
-          <ion-item-options side="end">
-            <ion-item-option class="opt-danger" (click)="presence(item, 4)">
-              <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
+        @for (member of presentMembers(); track member.id) {
+          <ng-container *ngTemplateOutlet="memberSliding; context: { $implicit: member }"></ng-container>
+        }
       </ion-list>
-    </div>
+    }
 
-    <div class="section-container" *ngIf="presentMembers().length > 0">
-      <div class="section-divider success">{{ 'present' | translate }}</div>
-      
-      <ion-list class="custom-sliding-list">
-        <ion-item-sliding *ngFor="let item of presentMembers()" class="attendance-slider">
-          <ion-item lines="none" class="member-attendance-item confirmed">
-            <div class="status-indicator present"></div>
-            <div class="member-info">
-              <h3>{{ item.first_name }} {{ item.last_name }}</h3>
-            </div>
-            <ion-icon name="checkmark-circle" color="success" slot="end"></ion-icon>
-          </ion-item>
-          
-          <ion-item-options side="end">
-            <ion-item-option class="opt-danger" (click)="presence(item, 4)">
-              <ion-icon slot="icon-only" name="close-outline"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
+    <!-- Sekcija: NISU PRISUTNI -->
+    @if (notPresentMembers().length > 0) {
+      <ion-list class="transparent-list">
+        <ion-item color="danger" class="category-divider" lines="none">
+          <ion-label>{{ 'notPresent' | translate }} ({{ notPresentMembers().length }})</ion-label>
+        </ion-item>
+
+        @for (member of notPresentMembers(); track member.id) {
+          <ng-container *ngTemplateOutlet="memberSliding; context: { $implicit: member }"></ng-container>
+        }
       </ion-list>
+    }
+  } @else {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner name="crescent"></ion-spinner>
     </div>
+  }
+  <ng-template #memberSliding let-member>
+    <ion-item-sliding>
+      <!-- Swipe desno (side="start") -> PRISUTAN -->
+      <ion-item-options side="start" (ionSwipe)="presence(member, 1)">
+        <ion-item-option expandable color="success" (click)="presence(member, 1)">
+          <ion-icon slot="icon-only" name="checkmark-circle"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
 
-    <div class="section-container" *ngIf="notPresentMembers().length > 0">
-      <div class="section-divider danger">{{ 'notPresent' | translate }}</div>
-      
-      <ion-list class="custom-sliding-list">
-        <ion-item-sliding *ngFor="let item of notPresentMembers()" class="attendance-slider">
-          <ion-item-options side="start">
-            <ion-item-option class="opt-success" (click)="presence(item, 1)">
-              <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
-            </ion-item-option>
-          </ion-item-options>
+      <ion-item lines="none" class="transparent-item">
+        <ion-label (click)="memberDetails(member)" class="small-text">
+          {{ member.first_name }} {{ member.last_name }}
+        </ion-label>
+      </ion-item>
 
-          <ion-item lines="none" class="member-attendance-item absent">
-            <div class="status-indicator not_present"></div>
-            <div class="member-info">
-              <h3>{{ item.first_name }} {{ item.last_name }}</h3>
-            </div>
-            <ion-icon name="close-circle" color="danger" slot="end"></ion-icon>
-          </ion-item>
-        </ion-item-sliding>
-      </ion-list>
-    </div>
-
-  </div>
+      <!-- Swipe levo (side="end") -> NIJE PRISUTAN -->
+      <ion-item-options side="end" (ionSwipe)="presence(member, 4)">
+        <ion-item-option expandable color="danger" (click)="presence(member, 4)">
+          <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ng-template>
 </ion-content>

@@ -2,19 +2,19 @@
   background: #E02423;
   color: #ffffff;
   font-weight: 500;
-  font-size: .72rem;
+  font-size: 1rem;
 }
 .ion-color-paid {
   background: #036B4E;
   color: #ffffff;
   font-weight: 500;
-  font-size: .72rem;
+  font-size: 1rem;
 }
 .ion-color-exempt {
   background: #6C2BD9;
   color: #ffffff;
   font-weight: 500;
-  font-size: .72rem;
+  font-size: 1rem;
 }
 
 h4 {
@@ -50,19 +50,19 @@ ion-list {
         .unpaid {
           color: #E02423;
           font-weight: 500;
-          font-size: .92rem;
+          font-size: 1rem;
         }
 
         .paid {
           color: #036B4E;
           font-weight: 500;
-          font-size: .92rem;
+          font-size: 1rem;
         }
 
         .exempt {
           color: #6C2BD9;
           font-weight: 500;
-          font-size: .92rem;
+          font-size: 1rem;
         }
       }
     }
@@ -73,16 +73,22 @@ ion-list {
 .unpaid {
   --background: #E02423 !important;;
   --color: #ffffff;
+  font-weight: 500;
+  font-size: 1rem;
 }
 
 .paid {
   --background: #036B4E !important;;
   --color: #ffffff;
+  font-weight: 500;
+  font-size: 1rem;
 }
 
 .exempt {
   --background: #6C2BD9 !important;;
   --color: #ffffff;
+  font-weight: 500;
+  font-size: 1rem;
 }
 .fixed {
   position: fixed;

@@ -242,5 +242,9 @@
   "measurement_deleted_success": "Мерење обрисано",
   "payment_details": "Детаљи плаћања",
   "membership_period": "Период чланства",
-  "payer_info": "Подаци о платиоцу"
+  "payer_info": "Подаци о платиоцу",
+  "training": "Тренинг",
+  "previous_notes": "Претходне напомене",
+  "no_notes": "Нема напомена",
+  "choose_file": "Изаберите датотеку"
 }

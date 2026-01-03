@@ -1,117 +1,82 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { AuthConstants } from 'src/app/core/config/auth-constants';
-import { EntryService } from 'src/app/core/services/entry.service';
-import { ToastService } from 'src/app/core/services/toast.service';
-import { TrainingCalendarsServiceService } from 'src/app/core/services/training-calendars-service.service';
-import { StorageService } from 'src/app/core/services/storage.service';
+import { TrainingCalendarsServiceService } from "src/app/core/services/training-calendars-service.service";
+import { ToastService } from "src/app/core/services/toast.service";
+import { TranslateService } from "@ngx-translate/core";
+import { AuthConstants } from "src/app/core/config/auth-constants";
+import { EntryService } from "src/app/core/services/entry.service";
 
 @Component({
   selector: 'app-training-calendar-result',
   templateUrl: './training-calendar-result.page.html',
   styleUrls: ['./training-calendar-result.page.scss'],
-  standalone: false,
+  standalone: false
 })
-export class TrainingCalendarResultPage implements OnInit {
-  // --- Services ---
-  private trainingService = inject(TrainingCalendarsServiceService);
+export class TrainingCalendarResultPage {
+  // Servisi
+  private trainingCalendarsService = inject(TrainingCalendarsServiceService);
+  private entryService = inject(EntryService);
   private toastService = inject(ToastService);
   private translate = inject(TranslateService);
   private activatedRoute = inject(ActivatedRoute);
-  private entryService = inject(EntryService);
-  private storage = inject(StorageService);
 
-  // --- Signals (State) ---
-  public members = signal<any[]>([]);
-  public group = signal<any>(null);
-  public trainingCalendar = signal<any>(null);
-  public categories = signal<any[]>([]);
-  public measurement_type = signal<string | null>(null);
-  public selectedCategory = signal<any>(null);
-  public selectedValue = signal<any>(null);
-  
-  public show = signal(false);
-  public showKey = signal(false);
-  public dataKey = signal<any | null>(null); // Replaces data.key
+  // Signals za stanje
+  show = signal<boolean>(false);
+  members = signal<any[]>([]);
+  categories = signal<any[]>([]);
+  trainingCalendar = signal<any>(null);
 
-  private calendarId: string | null = null;
+  // Form Signals
+  selectedCategory = signal<any>(null);
+  selectedValue = signal<any>(null);
+  measurementKey = signal<string | null>(null);
 
-  ngOnInit() {
+  // Postavke
+  measurementType = signal<string | null>(null);
+  group = signal<any>(null);
+  calendarId = signal<string | null>(null);
+
+  // Computed properties
+  showKey = computed(() => this.categories().length <= 0);
+
+  ionViewWillEnter() {
+    this.resetState();
+
+    // Učitavanje iz lokala
+    this.group.set(JSON.parse(localStorage.getItem(AuthConstants.GROUP) || '{}'));
+    this.categories.set(JSON.parse(localStorage.getItem(AuthConstants.MEASUREMENT_CATEGORIES) || '[]'));
+    this.measurementType.set(localStorage.getItem(AuthConstants.MEASUREMENT_TYPE));
+
+    const cachedMembers = JSON.parse(localStorage.getItem(AuthConstants.GROUP_MEMBERS) || '[]');
+    this.members.set(cachedMembers.map((m: any) => ({ ...m, value: null, read_only: false })));
+
     this.activatedRoute.params.subscribe(params => {
-      this.calendarId = params['id'] ?? null;
+      if (params['id']) {
+        this.calendarId.set(params['id']);
+        this.loadCalendarData(params['id']);
+      }
     });
   }
 
-  async ionViewWillEnter() {
+  private resetState() {
     this.show.set(false);
     this.selectedCategory.set(null);
     this.selectedValue.set(null);
+    this.measurementKey.set(null);
+  }
 
-    // REFACTORED: Load all data from Native Storage asynchronously
-    const [members, group, categories, mType] = await Promise.all([
-      this.storage.get(AuthConstants.GROUP_MEMBERS),
-      this.storage.get(AuthConstants.GROUP),
-      this.storage.get(AuthConstants.MEASUREMENT_CATEGORIES),
-      this.storage.get(AuthConstants.MEASUREMENT_TYPE)
-    ]);
+  private loadCalendarData(id: string) {
+    const data = {
+      team_group_training_calendar_id: id,
+      team_group_id: this.group().id,
+    };
 
-    this.members.set(members || []);
-    this.group.set(group);
-    this.categories.set(categories || []);
-    this.measurement_type.set(mType);
-    this.showKey.set((categories || []).length <= 0);
-
-    if (this.calendarId && this.group()) {
-      const requestData = {
-        team_group_training_calendar_id: this.calendarId,
-        team_group_id: this.group().id,
-      };
-
-      this.trainingService.show(this.calendarId, requestData).subscribe((res) => {
+    this.trainingCalendarsService.show(id, data).subscribe({
+      next: (res: any) => {
         this.trainingCalendar.set(res.training_calendar);
         this.show.set(true);
-      });
-    }
-  }
-
-  /** Update member value in signal array */
-  updateMemberValue(index: number, val: any) {
-    this.members.update(current => {
-      const updated = [...current];
-      updated[index] = { ...updated[index], value: val };
-      return updated;
-    });
-  }
-
-  saveMarkForMember() {
-    const calendar = this.trainingCalendar();
-    const group = this.group();
-    const currentMembers = this.members();
-
-    currentMembers.forEach((entry) => {
-      if (entry.value && entry.read_only !== true) {
-        const payload = {
-          member_id: entry.member_id,
-          value: entry.value,
-          date_time: new Date().toISOString(),
-          group_id: calendar ? null : group.id,
-          event_id: null,
-          team_group_training_calendar_id: calendar?.id || null,
-          key: this.categories().length > 0 ? '-' : this.dataKey(),
-          categories: this.categories(),
-          category: this.selectedCategory(),
-          category_value: this.selectedValue(),
-        };
-
-        this.entryService.measurement(payload).subscribe(() => {
-          entry.value = null; // Clear local value after success
-        });
       }
     });
-
-    this.toastService.presentToast(this.translate.instant('result_added'));
-    this.loadResults();
   }
 
   loadResults() {
@@ -120,19 +85,64 @@ export class TrainingCalendarResultPage implements OnInit {
     const request_data = {
       category_id: this.selectedCategory().id,
       category_value: this.selectedValue(),
-      team_group_training_calendar_id: this.trainingCalendar().id,
+      team_group_training_calendar_id: this.calendarId(),
       team_group_id: this.group().id,
     };
 
-    this.trainingService.getMemberMonthlyResult(request_data).subscribe((data) => {
-      const measurementsMap = new Map<string, string>();
-      data.measurements.forEach((m: any) => measurementsMap.set(m.member_id, m.value));
+    this.trainingCalendarsService.getMemberMonthlyResult(request_data).subscribe({
+      next: (res: any) => {
+        const measurementsMap = new Map<string, any>();
+        res.measurements.forEach((m: any) => measurementsMap.set(m.member_id.toString(), m.value));
 
-      this.members.update(prev => prev.map(member => ({
-        ...member,
-        value: measurementsMap.get(member.member_id) || null,
-        read_only: !!measurementsMap.get(member.member_id)
-      })));
+        this.members.update(currentMembers =>
+          currentMembers.map(member => {
+            const existingValue = measurementsMap.get(member.member_id?.toString() || member.id?.toString());
+            return {
+              ...member,
+              value: existingValue ?? null,
+              read_only: existingValue !== undefined && existingValue !== null
+            };
+          })
+        );
+      }
     });
+  }
+
+  saveMarkForMember() {
+    const calendar = this.trainingCalendar();
+    const currentMembers = this.members();
+
+    // Filtriramo samo one koji imaju upisanu vrijednost i nisu read-only
+    const entriesToSave = currentMembers.filter(m => m.value != null && m.value !== '' && !m.read_only);
+
+    if (entriesToSave.length === 0) {
+      this.toastService.presentToast(this.translate.instant('no_new_results'));
+      return;
+    }
+
+    entriesToSave.forEach((entry) => {
+      const data = {
+        member_id: entry.member_id || entry.id,
+        value: entry.value,
+        date_time: new Date().toISOString(),
+        group_id: calendar ? null : this.group().id,
+        event_id: null,
+        team_group_training_calendar_id: calendar?.id || null,
+        key: this.categories().length > 0 ? '-' : this.measurementKey(),
+        categories: this.categories(),
+        category: this.selectedCategory(),
+        category_value: this.selectedValue(),
+      };
+
+      this.entryService.measurement(data).subscribe();
+    });
+
+    this.toastService.presentToast(this.translate.instant('result_added'));
+
+    // Resetuj unose koji nisu zaključani
+    this.members.update(prev => prev.map(m => m.read_only ? m : { ...m, value: null }));
+
+    // Ponovo učitaj rezultate da se polja zaključaju (read_only)
+    setTimeout(() => this.loadResults(), 500);
   }
 }

@@ -1,0 +1,75 @@
+.bg_color {
+  --background: var(--ion-color-light-tint);
+}
+
+.main-card {
+  margin: 20px 16px;
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  border: none;
+
+  ion-card-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  .description {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: var(--ion-color-step-700);
+    line-height: 1.5;
+  }
+}
+
+.upload-section {
+  margin-top: 25px;
+  padding: 15px;
+  background: var(--ion-color-light-tint);
+  border-radius: 12px;
+  border: 2px dashed var(--ion-color-medium-tint);
+}
+
+.file-selector-item {
+  --background: transparent;
+  --padding-start: 0;
+
+  ion-label {
+    font-weight: 600;
+    margin-bottom: 15px !important;
+    color: var(--ion-color-primary);
+  }
+}
+
+.custom-file-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  width: 100%;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 3rem;
+    color: var(--ion-color-primary);
+    margin-bottom: 8px;
+  }
+
+  span {
+    font-size: 0.9rem;
+    color: var(--ion-color-medium-shade);
+  }
+
+  .file-name {
+    color: var(--ion-color-success-shade);
+    font-weight: 600;
+    text-align: center;
+  }
+}
+
+.submit-btn {
+  --border-radius: 12px;
+  --height: 52px;
+  font-weight: 600;
+  margin-top: 10px;
+}

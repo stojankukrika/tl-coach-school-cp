@@ -7,40 +7,63 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-card *ngIf="show()">
-    <ion-item lines="none">
-      <ion-label>
-        <h2 class="ion-text-wrap" style="font-weight: bold;">{{ trainingCalendar()?.title }}</h2>
-        <p>{{ trainingCalendar()?.from }} - {{ trainingCalendar()?.to }}</p>
-      </ion-label>
-    </ion-item>
+<ion-content class="bg_color">
+  @if (show()) {
+    <ion-card class="main-card">
+      <ion-card-header>
+        <ion-card-title>{{ trainingCalendar().title }}</ion-card-title>
+        <ion-card-subtitle>
+          <ion-icon name="calendar-outline"></ion-icon>
+          {{ trainingCalendar().from }} - {{ trainingCalendar().to }}
+        </ion-card-subtitle>
+      </ion-card-header>
 
-    <ion-item lines="none">
-      <p class="ion-text-wrap">{{ trainingCalendar()?.content }}</p>
-    </ion-item>
+      <ion-card-content>
+        <p class="description">{{ trainingCalendar().content }}</p>
 
-    <ion-item-divider></ion-item-divider>
-    <ion-item lines="none">
-      <ion-label position="stacked">{{ 'photo_video' | translate }}:</ion-label>
-      <input 
-        type="file" 
-        id="file" 
-        name="file" 
-        (change)="onSingleFileChange($event)" 
-        [ngModel]="file()"
-        accept="video/*,image/*"
-        style="padding: 10px 0;">
-    </ion-item>
+        <div class="upload-section">
+          <ion-item lines="none" class="file-selector-item">
+            <ion-label position="stacked">{{ 'photo_video' | translate }}</ion-label>
 
-    <div class="ion-padding">
-      <ion-button 
-        expand="block" 
-        (click)="addMemberFile()" 
-        [disabled]="isUploading()">
-        <ion-spinner name="crescent" *ngIf="isUploading()" slot="start"></ion-spinner>
-        {{ 'add_photo_video' | translate }}
-      </ion-button>
+            <!-- Sakriveni nativni input -->
+            <input
+              type="file"
+              #fileInput
+              hidden
+              accept="video/*,image/*"
+              (change)="onSingleFileChange($event)">
+
+            <!-- Custom dugme koje okida nativni input -->
+            <div class="custom-file-input" (click)="fileInput.click()">
+              <ion-icon name="cloud-upload-outline"></ion-icon>
+              @if (selectedFileName()) {
+                <span class="file-name">{{ selectedFileName() }}</span>
+              } @else {
+                <span>{{ 'choose_file' | translate }}</span>
+              }
+            </div>
+          </ion-item>
+        </div>
+      </ion-card-content>
+
+      <div class="ion-padding">
+        <ion-button
+          expand="block"
+          (click)="addMemberFile()"
+          [disabled]="!selectedFileName() || isUploading()"
+          class="submit-btn">
+          @if (isUploading()) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            <ion-icon slot="start" name="share-outline"></ion-icon>
+            {{ 'add_photo_video' | translate }}
+          }
+        </ion-button>
+      </div>
+    </ion-card>
+  } @else {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner name="crescent"></ion-spinner>
     </div>
-  </ion-card>
+  }
 </ion-content>

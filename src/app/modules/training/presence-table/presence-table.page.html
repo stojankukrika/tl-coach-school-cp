@@ -123,11 +123,10 @@
             <ion-label>{{ 'history_presence' | translate }}</ion-label>
           </ion-item>
           <ion-item-divider color="light">
-            <ion-label>{{ 'training_plans' | translate }}</ion-label>
           </ion-item-divider>
           @for (item of trainingDays(); track item.id; let i = $index) {
             <ion-item button (click)="trainingPlan(item, i + 1)">
-              <ion-label>{{ 'plan' | translate }} {{ i + 1 }}</ion-label>
+              <ion-label>{{ 'training' | translate }} {{ i + 1 }}</ion-label>
             </ion-item>
           }
         </ion-list>

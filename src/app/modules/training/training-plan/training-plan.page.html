@@ -1,89 +1,98 @@
-<ion-header class="safe-area-top ion-no-border">
+<ion-header class="safe-area-top">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button text="" icon="chevron-back-outline" default-href="home"></ion-back-button>
     </ion-buttons>
     <ion-title>{{ 'training_plan_coach_notes' | translate }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="setViewType('active')" class="btn-more">
+      <ion-button id="open-menu-details">
         <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="bg_color">
-  <div class="content-wrapper animate__animated animate__fadeIn" *ngIf="show()">
-    
-    <div class="form-container">
-      <div class="section-header">
-        <span class="badge">{{ 'session' | translate }} {{ order() }}</span>
-        <h2 class="main-title">{{ 'training_plan_for' | translate }}</h2>
-      </div>
+<ion-content class="ion-padding">
+  @if (show()) {
+    <ion-list lines="none">
+      <ion-item class="info-item">
+        <ion-label>
+          <h2>{{ 'training_plan_for' | translate }} {{ order() }}</h2>
+          <p>{{ training().date_formatted }} | {{ training().time_from }} - {{ training().time_to }}</p>
+        </ion-label>
+      </ion-item>
 
-      <div class="form-group">
-        <label class="input-label">{{ 'enter_plan' | translate }}</label>
-        <div class="custom-input-wrapper textarea-wrapper">
-          <ion-textarea 
-            [ngModel]="training()?.note" 
-            (ngModelChange)="updateNote('note', $event)"
-            [placeholder]="'plan_placeholder' | translate" 
-            [readonly]="readonly()"
-            auto-grow="true">
-          </ion-textarea>
-        </div>
-      </div>
+      <ion-item class="input-item">
+        <ion-textarea
+          [ngModel]="training().note"
+          (ngModelChange)="updateNote($event)"
+          [placeholder]="'enter_plan' | translate"
+          [readonly]="readonly()"
+          labelPlacement="floating"
+          [label]="'training_plan' | translate"
+          autoGrow="true">
+        </ion-textarea>
+      </ion-item>
 
-      <div class="form-group">
-        <label class="input-label">{{ 'coach_notes' | translate }}</label>
-        <div class="custom-input-wrapper textarea-wrapper">
-          <ion-textarea 
-            [ngModel]="training()?.coach_notes" 
-            (ngModelChange)="updateNote('coach_notes', $event)"
-            [placeholder]="'notes_placeholder' | translate"
-            auto-grow="true">
-          </ion-textarea>
-        </div>
-      </div>
+      <ion-item class="input-item">
+        <ion-textarea
+          [ngModel]="training().coach_notes"
+          (ngModelChange)="updateCoachNote($event)"
+          [placeholder]="'coach_notes' | translate"
+          labelPlacement="floating"
+          [label]="'coach_notes' | translate"
+          autoGrow="true">
+        </ion-textarea>
+      </ion-item>
 
-      <ion-button expand="block" shape="round" class="btn-save" (click)="save()" [disabled]="clicked()">
-        <ion-spinner name="crescent" *ngIf="clicked()" slot="start"></ion-spinner>
-        {{ 'save' | translate }}
+      <ion-button
+        expand="block"
+        size="large"
+        class="save-btn"
+        (click)="save()"
+        [disabled]="clicked()">
+        @if (clicked()) {
+          <ion-spinner name="dots"></ion-spinner>
+        } @else {
+          {{ 'save' | translate }}
+        }
       </ion-button>
-    </div>
+    </ion-list>
 
-    <div class="history-section" *ngIf="team_training_notes().length > 0">
-      <div class="section-divider">{{ 'recent_member_notes' | translate }}</div>
-      
-      <div class="note-card animate__animated animate__fadeInUp" *ngFor="let item of team_training_notes()">
-        <div class="note-header">
-          <div class="user-info">
-            <div class="mini-avatar">{{ item.first_name[0] }}{{ item.last_name[0] }}</div>
-            <div class="meta">
-              <span class="user-name">{{ item.first_name }} {{ item.last_name }}</span>
-              <span class="note-date">{{ item.date_from_created }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="note-body">
-          <p>{{ item.note }}</p>
-        </div>
-      </div>
+    <div class="notes-section">
+      <h3 class="section-title">{{ 'previous_notes' | translate }}</h3>
+      @for (item of teamTrainingNotes(); track item.id) {
+        <ion-card class="note-card">
+          <ion-card-header>
+            <ion-card-subtitle>{{ item.date_from_created }}</ion-card-subtitle>
+            <ion-card-title>{{ item.first_name }} {{ item.last_name }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            {{ item.note }}
+          </ion-card-content>
+        </ion-card>
+      } @empty {
+        <p class="ion-text-center ion-padding">{{ 'no_notes' | translate }}</p>
+      }
     </div>
-
-  </div>
-
-  <div [ngClass]="viewType() === 'active' ? 'option_container active':'option_container'" (click)="setViewType(null)">
-    <div class="option-sheet animate__animated animate__slideInUp" (click)="$event.stopPropagation()" *ngIf="viewType() === 'active'">
-      <div class="sheet-handle"></div>
-      <div class="menu-item" (click)="presentMembers(); setViewType(null)">
-        <ion-icon name="people-outline"></ion-icon>
-        <span>{{ 'present_members' | translate }}</span>
-      </div>
-      <div class="menu-item" (click)="memberNote(); setViewType(null)">
-        <ion-icon name="document-text-outline"></ion-icon>
-        <span>{{ 'notes' | translate }}</span>
-      </div>
-    </div>
-  </div>
+  }
 </ion-content>
+
+
+<!-- Custom Menu Overlay -->
+<ion-popover trigger="open-menu-details" dismiss-on-select="true">
+  <ng-template>
+    <ion-content>
+      <ion-list lines="full">
+        <ion-item button (click)="presentMembers(); setViewType(null)">
+          <ion-icon slot="start" name="people-outline"></ion-icon>
+          <ion-label>{{ 'present_members' | translate }}</ion-label>
+        </ion-item>
+        <ion-item button (click)="memberNote(); setViewType(null)">
+          <ion-icon slot="start" name="document-text-outline"></ion-icon>
+          <ion-label>{{ 'notes' | translate }}</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-popover>

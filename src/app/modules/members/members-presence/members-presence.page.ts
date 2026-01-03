@@ -1,102 +1,106 @@
-import { Component, OnInit, inject, signal, WritableSignal, computed } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthConstants } from 'src/app/core/config/auth-constants';
-import { EntryService } from 'src/app/core/services/entry.service';
-import { StorageService } from 'src/app/core/services/storage.service';
+import { ViewWillEnter } from '@ionic/angular';
+import { GroupTrainingService } from 'src/app/core/services/group-training.service';
+import { EntryService } from "src/app/core/services/entry.service";
+import { AuthConstants } from "src/app/core/config/auth-constants";
 
 @Component({
   selector: 'app-members-presence',
   templateUrl: './members-presence.page.html',
   styleUrls: ['./members-presence.page.scss'],
-  standalone: false,
+  standalone: false
 })
-export class MembersPresencePage implements OnInit {
-  // --- Services ---
-  private route = inject(Router);
+export class MembersPresencePage implements ViewWillEnter {
+  // Injekcija servisa
+  private groupTrainingService = inject(GroupTrainingService);
   private entryService = inject(EntryService);
-  private storage = inject(StorageService);
+  private route = inject(Router);
 
-  // --- Signals & State ---
-  public selectedDate = signal<any>(new Date().toISOString());
-  public members: WritableSignal<any[]> = signal([]);
-  public trainingDays: WritableSignal<any[]> = signal([]);
-  public totalPresences: WritableSignal<{ [key: string]: number }> = signal({});
-  
-  // UI Flags
-  public isLoading = signal(true);
-  public showPayments = signal(false);
-  public showAllPresenceStatuses = signal(true);
+  // Signals za reaktivno stanje
+  selectedDate = signal<string>(new Date().toISOString());
+  members = signal<any[]>([]);
+  trainingDays = signal<any[]>([]);
+  totalPresences = signal<Record<number, number>>({});
 
-  constructor() {}
+  // Postavke
+  showPayments = signal<boolean>(false);
+  teamAppSettings = signal<any>(null);
 
-  ngOnInit(): void {}
+  constructor() {
+    const settings = JSON.parse(localStorage.getItem(AuthConstants.APPSETTINGS) || '{}');
+    this.teamAppSettings.set(settings);
 
-  async ionViewWillEnter() {
-    this.isLoading.set(true);
-    await this.initSettings();
-    await this.fetchData();
+    const role = localStorage.getItem(AuthConstants.ROLE);
+    if (role === 'management' || role === 'top_coach') {
+      this.showPayments.set(true);
+    }
   }
 
-  private async initSettings() {
-    const settings = await this.storage.get(AuthConstants.APPSETTINGS);
-    const role = await this.storage.get(AuthConstants.ROLE);
-
-    this.showAllPresenceStatuses.set(!settings?.presence_chart || settings.presence_chart === 'all_values');
-    this.showPayments.set(role === 'management' || role === 'top_coach');
+  ionViewWillEnter() {
+    // Inicijalno punjenje iz lokala da ekran ne bude prazan dok traje API poziv
+    const cachedMembers = JSON.parse(localStorage.getItem(AuthConstants.GROUP_MEMBERS) || '[]');
+    this.members.set(cachedMembers);
+    this.fetchData();
   }
 
-  /** Formats the date and triggers the API load */
-  async fetchData() {
-    this.isLoading.set(true);
-    const date = new Date(this.selectedDate());
-    const selectedMonth = ('0' + (date.getMonth() + 1)).slice(-2);
-    const selectedYear = date.getFullYear();
+  fetchData() {
+    const dateObj = new Date(this.selectedDate());
+    const selectedMonth = ('0' + (dateObj.getMonth() + 1)).slice(-2);
+    const selectedYear = dateObj.getFullYear();
 
-    const group = await this.storage.get(AuthConstants.GROUP);
-    
-    const payload = {
+    const group = JSON.parse(localStorage.getItem(AuthConstants.GROUP) || '{}');
+
+    const data = {
       group_id: group.id,
       date: `${selectedYear}-${selectedMonth}`,
     };
 
-    this.loadEntriesForMonth(payload);
+    this.loadEntriesForMonth(data);
   }
 
-  private loadEntriesForMonth(payload: any) {
-    this.entryService.presenceMonthly(payload).subscribe({
+  private loadEntriesForMonth(data: any) {
+    this.entryService.presenceMonthly(data).subscribe({
       next: (res: any) => {
-        const tempTotals: { [key: string]: number } = {};
-        const mappedMembers = res.members.map((m: any) => ({ ...m, presence: [] }));
+        // Priprema članova sa praznim nizom prisustva
+        const newMembers = res.members.map((m: any) => ({ ...m, presence: [] }));
+        const totals: Record<number, number> = {};
 
         res.trainings.forEach((training: any) => {
-          tempTotals[training.id] = 0;
+          totals[training.id] = 0;
 
-          mappedMembers.forEach((member: any) => {
-            const match = training.member_presences.find((p: any) => p.member_id === member.member_id);
-            let status = '&nbsp;';
+          newMembers.forEach((member: any) => {
+            const presence = training.member_presences.find((p: any) => p.member_id === member.member_id);
 
-            if (match) {
-              if (match.status_id === 1) {
-                tempTotals[training.id]++;
-                status = 'present';
-              } else if (match.status_id === 2) status = 'sick';
-              else if (match.status_id === 3) status = 'late';
-              else if (match.status_id === 4) status = 'not_present';
+            if (presence) {
+              const statusMap: Record<number, string> = {
+                1: 'present',
+                2: 'sick',
+                3: 'late',
+                4: 'not_present'
+              };
+
+              const status = statusMap[presence.status_id] || 'unknown';
+              member.presence.push(status);
+
+              if (presence.status_id === 1) {
+                totals[training.id] += 1;
+              }
+            } else {
+              member.presence.push('none');
             }
-            member.presence.push(status);
           });
         });
 
+        // Ažuriranje signala (ovo automatski osvježava HTML)
+        this.members.set(newMembers);
         this.trainingDays.set(res.trainings);
-        this.totalPresences.set(tempTotals);
-        this.members.set(mappedMembers);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false)
+        this.totalPresences.set(totals);
+      }
     });
   }
 
   memberDetails(member: any) {
-    this.route.navigate(['./member-details', member.member_id || member.id]);
+    this.route.navigate(['./member-details', member.id]);
   }
 }

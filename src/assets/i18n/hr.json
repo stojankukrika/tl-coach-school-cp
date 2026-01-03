@@ -244,5 +244,9 @@
   "measurement_deleted_success": "Мjerenjе obrisano",
   "payment_details": "Detalji plaćanja",
   "membership_period": "Period članstva",
-  "payer_info": "Podaci o uplatiocu"
+  "payer_info": "Podaci o uplatiocu",
+  "training": "Trening",
+  "previous_notes": "Prethodne napomene",
+  "no_notes": "Nema napomena",
+  "choose_file": "Izaberite datoteku"
 }
